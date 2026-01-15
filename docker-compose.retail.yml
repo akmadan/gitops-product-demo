@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  retail-banking-api:
+    build: ./apps/retail-banking/retail-banking-api
+    ports:
+      - "8090:8090"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - SERVICE_NAME=retail-banking-api
+    networks:
+      - banking-network
+
+  account-service:
+    build: ./apps/retail-banking/account-service
+    ports:
+      - "8091:8091"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+
+  transaction-service:
+    build: ./apps/retail-banking/transaction-service
+    ports:
+      - "8092:8092"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - ACCOUNT_SERVICE_URL=http://account-service:8091
+      - FRAUD_DETECTION_URL=http://fraud-detection:8093
+    networks:
+      - banking-network
+    depends_on:
+      - account-service
+      - fraud-detection
+
+  fraud-detection:
+    build: ./apps/retail-banking/fraud-detection
+    ports:
+      - "8093:8093"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+
+  retail-logging-service:
+    build: ./apps/retail-banking/logging-service
+    ports:
+      - "8094:8094"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - SERVICE_NAME=retail-logging-service
+    networks:
+      - banking-network
+
+  retail-banking-ui:
+    build: ./apps/retail-banking/retail-banking-ui
+    ports:
+      - "5175:80"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    depends_on:
+      - retail-banking-api
+      - account-service
+      - transaction-service
+      - fraud-detection
+      - retail-logging-service
+
+networks:
+  banking-network:
+    driver: bridge

@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  corp-banking-api:
+    build: ./apps/corporate-banking/corp-banking-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - TREASURY_SERVICE_URL=http://treasury-service:8081
+      - COMPLIANCE_SERVICE_URL=http://compliance-service:8082
+    networks:
+      - banking-network
+
+  treasury-service:
+    build: ./apps/corporate-banking/treasury-service
+    ports:
+      - "8081:8081"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+
+  compliance-service:
+    build: ./apps/corporate-banking/compliance-service
+    ports:
+      - "8082:8082"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - SERVICE_NAME=compliance-service
+    networks:
+      - banking-network
+
+  corp-banking-ui:
+    build: ./apps/corporate-banking/corp-banking-ui
+    ports:
+      - "5173:80"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    depends_on:
+      - corp-banking-api
+      - treasury-service
+      - compliance-service
+
+networks:
+  banking-network:
+    driver: bridge

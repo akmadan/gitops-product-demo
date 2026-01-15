@@ -1,0 +1,190 @@
+version: '3.8'
+
+services:
+  # Corporate Banking Services
+  corp-banking-api:
+    build: ./apps/corporate-banking/corp-banking-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - TREASURY_SERVICE_URL=http://treasury-service:8081
+      - COMPLIANCE_SERVICE_URL=http://compliance-service:8082
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/corporate-banking/corp-banking-api:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+
+  treasury-service:
+    build: ./apps/corporate-banking/treasury-service
+    ports:
+      - "8081:8081"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/corporate-banking/treasury-service:/app
+    command: go run main.go
+
+  compliance-service:
+    build: ./apps/corporate-banking/compliance-service
+    ports:
+      - "8082:8082"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - SERVICE_NAME=compliance-service
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/corporate-banking/compliance-service:/app
+    command: npm run dev
+
+  corp-banking-ui:
+    build: ./apps/corporate-banking/corp-banking-ui
+    ports:
+      - "5173:5173"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/corporate-banking/corp-banking-ui:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # Loans Services
+  document-processing:
+    build: ./apps/loans/document-processing
+    ports:
+      - "8084:8084"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - SERVICE_NAME=document-processing
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/loans/document-processing:/app
+    command: npm run dev
+
+  credit-scoring:
+    build: ./apps/loans/credit-scoring
+    ports:
+      - "8085:8085"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/loans/credit-scoring:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8085 --reload
+
+  loans-api:
+    build: ./apps/loans/loans-api
+    ports:
+      - "8083:8083"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - CREDIT_SCORING_URL=http://credit-scoring:8085
+      - DOCUMENT_PROCESSING_URL=http://document-processing:8084
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/loans/loans-api:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8083 --reload
+
+  loans-ui:
+    build: ./apps/loans/loans-ui
+    ports:
+      - "5174:5174"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/loans/loans-ui:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # Retail Banking Services
+  retail-banking-api:
+    build: ./apps/retail-banking/retail-banking-api
+    ports:
+      - "8090:8090"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - SERVICE_NAME=retail-banking-api
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/retail-banking/retail-banking-api:/app
+    command: npm run dev
+
+  account-service:
+    build: ./apps/retail-banking/account-service
+    ports:
+      - "8091:8091"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/retail-banking/account-service:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8091 --reload
+
+  transaction-service:
+    build: ./apps/retail-banking/transaction-service
+    ports:
+      - "8092:8092"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - ACCOUNT_SERVICE_URL=http://account-service:8091
+      - FRAUD_DETECTION_URL=http://fraud-detection:8093
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/retail-banking/transaction-service:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8092 --reload
+
+  fraud-detection:
+    build: ./apps/retail-banking/fraud-detection
+    ports:
+      - "8093:8093"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/retail-banking/fraud-detection:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8093 --reload
+
+  retail-logging-service:
+    build: ./apps/retail-banking/logging-service
+    ports:
+      - "8094:8094"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - SERVICE_NAME=retail-logging-service
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/retail-banking/logging-service:/app
+    command: npm run dev
+
+  retail-banking-ui:
+    build: ./apps/retail-banking/retail-banking-ui
+    ports:
+      - "5175:5175"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    volumes:
+      - ./apps/retail-banking/retail-banking-ui:/app
+      - /app/node_modules
+    command: npm run dev
+
+networks:
+  banking-network:
+    driver: bridge

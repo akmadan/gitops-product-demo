@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  document-processing:
+    build: ./apps/loans/document-processing
+    ports:
+      - "8084:8084"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - SERVICE_NAME=document-processing
+    networks:
+      - banking-network
+
+  credit-scoring:
+    build: ./apps/loans/credit-scoring
+    ports:
+      - "8085:8085"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+
+  loans-api:
+    build: ./apps/loans/loans-api
+    ports:
+      - "8083:8083"
+    environment:
+      - ENVIRONMENT=docker-compose
+      - CREDIT_SCORING_URL=http://credit-scoring:8085
+      - DOCUMENT_PROCESSING_URL=http://document-processing:8084
+    networks:
+      - banking-network
+    depends_on:
+      - credit-scoring
+      - document-processing
+
+  loans-ui:
+    build: ./apps/loans/loans-ui
+    ports:
+      - "5174:80"
+    environment:
+      - ENVIRONMENT=docker-compose
+    networks:
+      - banking-network
+    depends_on:
+      - loans-api
+      - credit-scoring
+      - document-processing
+
+networks:
+  banking-network:
+    driver: bridge

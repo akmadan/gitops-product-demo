@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: retail-banking
+  labels:
+    environment: prod-na
+    domain: retail-banking

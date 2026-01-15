@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: corporate-banking
+  labels:
+    environment: dev
+    domain: corporate-banking

@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: namespaces
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/harness/banking-demo.git  # Replace with actual repo
+      revision: HEAD
+      directories:
+      - path: clusters/*/namespaces
+  template:
+    metadata:
+      name: 'namespaces-{{path[1]}}'
+      namespace: argocd
+      labels:
+        app.kubernetes.io/name: namespaces
+        app.kubernetes.io/component: '{{path[1]}}'
+        argocd.argoproj.io/application-type: infrastructure
+      annotations:
+        argocd.argoproj.io/sync-wave: "0"
+        argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+        notifications.argoproj.io/subscribe.on-sync-succeeded.slack: banking-alerts
+    spec:
+      project: banking
+      source:
+        repoURL: https://github.com/harness/banking-demo.git  # Replace with actual repo
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - PrunePropagationPolicy=foreground
+        - PruneLast=true
+        retry:
+          limit: 3
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 2m
+      revisionHistoryLimit: 2

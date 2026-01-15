@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: retail-banking
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/harness/banking-demo.git  # Replace with actual repo
+      revision: HEAD
+      directories:
+      - path: clusters/*/retail-banking
+  template:
+    metadata:
+      name: 'retail-banking-{{path[1]}}'
+      namespace: argocd
+      labels:
+        app.kubernetes.io/name: retail-banking
+        app.kubernetes.io/component: '{{path[1]}}'
+        argocd.argoproj.io/application-type: retail-banking
+      annotations:
+        argocd.argoproj.io/sync-wave: "{{syncWave}}"
+        argocd.argoproj.io/compare-options: ServerSideDiff=true
+        notifications.argoproj.io/subscribe.on-sync-succeeded.slack: banking-alerts
+        argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    spec:
+      project: banking
+      source:
+        repoURL: https://github.com/harness/banking-demo.git  # Replace with actual repo
+        targetRevision: HEAD
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: retail-banking
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - PrunePropagationPolicy=foreground
+        - PruneLast=true
+        - RespectIgnoreDifferences=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+      ignoreDifferences:
+      - group: apps
+        kind: Deployment
+        jsonPointers:
+        - /spec/replicas
+      revisionHistoryLimit: 3
