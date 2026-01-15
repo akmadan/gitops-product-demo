@@ -6,7 +6,7 @@ metadata:
 spec:
   description: "Banking Demo Project - All domains and environments"
   sourceRepos:
-  - https://github.com/harness/banking-demo.git  # Replace with actual repo
+  - https://github.com/akmadan/gitops-product-demo
   destinations:
   - namespace: corporate-banking
     server: https://kubernetes.default.svc
