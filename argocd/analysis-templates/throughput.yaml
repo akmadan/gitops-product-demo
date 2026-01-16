@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: throughput
+  namespace: argocd
+spec:
+  args:
+  - name: service-name
+  metrics:
+  - name: throughput
+    interval: 5m
+    count: 10
+    successCondition: result[0] >= 100
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: http://prometheus.monitoring.svc.cluster.local:9090
+        query: |
+          sum(rate(http_requests_total{service="{{args.service-name}}"}[2m]))
