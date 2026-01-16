@@ -1,0 +1,139 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: logging-service
+  namespace: retail-banking
+  labels:
+    app: logging-service
+    environment: prod-na
+    strategy: blueGreen
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: logging-service
+  template:
+    metadata:
+      labels:
+        app: logging-service
+        environment: prod-na
+    spec:
+      containers:
+      - name: logging-service
+        image: docker.io/akshitmadanharness/logging-service:latest
+        ports:
+        - containerPort: 8094
+        env:
+        - name: ENVIRONMENT
+          value: "prod-na"
+        - name: ELASTICSEARCH_URL
+          value: "https://elasticsearch.logging.svc.cluster.local:9200"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: LOG_RETENTION_DAYS
+          value: "90"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8094
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8094
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    blueGreen:
+      activeService: logging-service-active
+      previewService: logging-service-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
+      prePromotionAnalysis:
+        templates:
+        - templateName: success-rate
+          args:
+            - service-name: logging-service
+        - templateName: latency-threshold
+          args:
+            - service-name: logging-service
+        - templateName: error-rate
+          args:
+            - service-name: logging-service
+        - templateName: throughput
+          args:
+            - service-name: logging-service
+        interval: 5m
+      postPromotionAnalysis:
+        templates:
+        - templateName: success-rate
+          args:
+            - service-name: logging-service
+        - templateName: latency-threshold
+          args:
+            - service-name: logging-service
+        - templateName: error-rate
+          args:
+            - service-name: logging-service
+        interval: 5m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logging-service-active
+  namespace: retail-banking
+  labels:
+    app: logging-service
+    environment: prod-na
+spec:
+  selector:
+    app: logging-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8094
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logging-service-preview
+  namespace: retail-banking
+  labels:
+    app: logging-service
+    environment: prod-na
+spec:
+  selector:
+    app: logging-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8094
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logging-service-config
+  namespace: retail-banking
+  labels:
+    app: logging-service
+    environment: prod-na
+data:
+  ENVIRONMENT: "prod-na"
+  LOG_LEVEL: "INFO"
+  ELASTICSEARCH_URL: "https://elasticsearch.logging.svc.cluster.local:9200"
+  LOG_RETENTION_DAYS: "90"
+  BATCH_SIZE: "1000"
+  INDEX_PATTERN: "banking-logs-*"

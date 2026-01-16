@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: corporate-banking
-  labels:
-    environment: prod-eu
-    domain: corporate-banking

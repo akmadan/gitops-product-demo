@@ -1,0 +1,126 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: retail-banking-api
+  namespace: retail-banking
+  labels:
+    app: retail-banking-api
+    environment: prod-na
+    strategy: canary
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: retail-banking-api
+  template:
+    metadata:
+      labels:
+        app: retail-banking-api
+        environment: prod-na
+    spec:
+      containers:
+      - name: retail-banking-api
+        image: docker.io/akshitmadanharness/retail-banking-api:latest
+        ports:
+        - containerPort: 8090
+        env:
+        - name: ENVIRONMENT
+          value: "prod-na"
+        - name: ACCOUNT_SERVICE_URL
+          value: "http://account-service:8091"
+        - name: TRANSACTION_SERVICE_URL
+          value: "http://transaction-service:8092"
+        - name: FRAUD_DETECTION_URL
+          value: "http://fraud-detection:8093"
+        - name: DATABASE_URL
+          value: "postgresql://retail-db:5432/retail_banking"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    canary:
+      maxSurge: '25%'
+      maxUnavailable: 0
+      steps:
+        - setWeight: 10
+        - pause:
+            duration: 10m
+        - setWeight: 25
+        - pause:
+            duration: 10m
+        - setWeight: 50
+        - pause:
+            duration: 10m
+        - setWeight: 100
+      analysis:
+        templates:
+        - templateName: success-rate
+          args:
+            - service-name: retail-banking-api
+        - templateName: latency-threshold
+          args:
+            - service-name: retail-banking-api
+        - templateName: error-rate
+          args:
+            - service-name: retail-banking-api
+        - templateName: throughput
+          args:
+            - service-name: retail-banking-api
+        startingStep: 2
+        interval: 5m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: retail-banking-api
+  namespace: retail-banking
+  labels:
+    app: retail-banking-api
+    environment: prod-na
+spec:
+  selector:
+    app: retail-banking-api
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8090
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: retail-banking-api-config
+  namespace: retail-banking
+  labels:
+    app: retail-banking-api
+    environment: prod-na
+data:
+  ENVIRONMENT: "prod-na"
+  LOG_LEVEL: "INFO"
+  ACCOUNT_SERVICE_URL: "http://account-service:8091"
+  TRANSACTION_SERVICE_URL: "http://transaction-service:8092"
+  FRAUD_DETECTION_URL: "http://fraud-detection:8093"
+  DATABASE_HOST: "retail-db"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "retail_banking"
+  API_RATE_LIMIT: "3000"
+  CACHE_TTL: "1800"

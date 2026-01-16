@@ -1,0 +1,130 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: corp-banking-ui
+  namespace: corporate-banking
+  labels:
+    app: corp-banking-ui
+    environment: prod-na
+    strategy: blueGreen
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: corp-banking-ui
+  template:
+    metadata:
+      labels:
+        app: corp-banking-ui
+        environment: prod-na
+    spec:
+      containers:
+      - name: corp-banking-ui
+        image: docker.io/akshitmadanharness/corp-banking-ui:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: ENVIRONMENT
+          value: "prod-na"
+        - name: REACT_APP_API_URL
+          value: "https://corp-banking-api.prod-na.svc.cluster.local"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    blueGreen:
+      activeService: corp-banking-ui-active
+      previewService: corp-banking-ui-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
+      prePromotionAnalysis:
+        templates:
+        - templateName: success-rate
+          args:
+            - service-name: corp-banking-ui
+        - templateName: latency-threshold
+          args:
+            - service-name: corp-banking-ui
+        - templateName: error-rate
+          args:
+            - service-name: corp-banking-ui
+        interval: 5m
+      postPromotionAnalysis:
+        templates:
+        - templateName: success-rate
+          args:
+            - service-name: corp-banking-ui
+        - templateName: latency-threshold
+          args:
+            - service-name: corp-banking-ui
+        - templateName: error-rate
+          args:
+            - service-name: corp-banking-ui
+        interval: 5m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: corp-banking-ui-active
+  namespace: corporate-banking
+  labels:
+    app: corp-banking-ui
+    environment: prod-na
+spec:
+  selector:
+    app: corp-banking-ui
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: corp-banking-ui-preview
+  namespace: corporate-banking
+  labels:
+    app: corp-banking-ui
+    environment: prod-na
+spec:
+  selector:
+    app: corp-banking-ui
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: corp-banking-ui-config
+  namespace: corporate-banking
+  labels:
+    app: corp-banking-ui
+    environment: prod-na
+data:
+  ENVIRONMENT: "prod-na"
+  REACT_APP_API_URL: "https://corp-banking-api.prod-na.svc.cluster.local"
+  REACT_APP_ENV: "production"
+  REACT_APP_VERSION: "latest"
