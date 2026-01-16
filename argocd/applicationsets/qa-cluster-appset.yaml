@@ -1,0 +1,85 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: qa-microservices
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+
+  generators:
+  - list:
+      elements:
+        # -------- corporate-banking --------
+        - app: compliance-service
+          path: clusters/qa/corporate-banking/compliance-service
+          namespace: corporate-banking
+        - app: corp-banking-api
+          path: clusters/qa/corporate-banking/corp-banking-api
+          namespace: corporate-banking
+        - app: corp-banking-ui
+          path: clusters/qa/corporate-banking/corp-banking-ui
+          namespace: corporate-banking
+        - app: treasury-service
+          path: clusters/qa/corporate-banking/treasury-service
+          namespace: corporate-banking
+
+        # -------- retail-banking --------
+        - app: account-service
+          path: clusters/qa/retail-banking/account-service
+          namespace: retail-banking
+        - app: fraud-detection
+          path: clusters/qa/retail-banking/fraud-detection
+          namespace: retail-banking
+        - app: logging-service
+          path: clusters/qa/retail-banking/logging-service
+          namespace: retail-banking
+        - app: retail-banking-api
+          path: clusters/qa/retail-banking/retail-banking-api
+          namespace: retail-banking
+        - app: retail-banking-ui
+          path: clusters/qa/retail-banking/retail-banking-ui
+          namespace: retail-banking
+        - app: transaction-service
+          path: clusters/qa/retail-banking/transaction-service
+          namespace: retail-banking
+
+        # -------- loans --------
+        - app: credit-scoring
+          path: clusters/qa/loans/credit-scoring
+          namespace: loans
+        - app: document-processing
+          path: clusters/qa/loans/document-processing
+          namespace: loans
+        - app: loans-api
+          path: clusters/qa/loans/loans-api
+          namespace: loans
+        - app: loans-ui
+          path: clusters/qa/loans/loans-ui
+          namespace: loans
+
+  template:
+    metadata:
+      name: "qa-{{.app}}"
+      labels:
+        environment: "qa"
+        app: "{{.app}}"
+    spec:
+      project: banking
+
+      source:
+        repoURL: https://github.com/akmadan/gitops-product-demo
+        targetRevision: main
+        path: "{{.path}}"
+
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "{{.namespace}}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
