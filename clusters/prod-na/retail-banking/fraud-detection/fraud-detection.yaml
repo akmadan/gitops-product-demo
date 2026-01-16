@@ -69,22 +69,6 @@ spec:
         - pause:
             duration: 10m
         - setWeight: 100
-      analysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: fraud-detection
-        - templateName: latency-threshold
-          args:
-            - service-name: fraud-detection
-        - templateName: error-rate
-          args:
-            - service-name: fraud-detection
-        - templateName: model-accuracy
-          args:
-            - service-name: fraud-detection
-        startingStep: 2
-        interval: 5m
 ---
 apiVersion: v1
 kind: Service

@@ -58,30 +58,6 @@ spec:
       previewService: loans-ui-preview
       autoPromotionEnabled: false
       scaleDownDelaySeconds: 30
-      prePromotionAnalysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: loans-ui
-        - templateName: latency-threshold
-          args:
-            - service-name: loans-ui
-        - templateName: error-rate
-          args:
-            - service-name: loans-ui
-        interval: 5m
-      postPromotionAnalysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: loans-ui
-        - templateName: latency-threshold
-          args:
-            - service-name: loans-ui
-        - templateName: error-rate
-          args:
-            - service-name: loans-ui
-        interval: 5m
 ---
 apiVersion: v1
 kind: Service

@@ -73,22 +73,6 @@ spec:
         - pause:
             duration: 10m
         - setWeight: 100
-      analysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: transaction-service
-        - templateName: latency-threshold
-          args:
-            - service-name: transaction-service
-        - templateName: error-rate
-          args:
-            - service-name: transaction-service
-        - templateName: throughput
-          args:
-            - service-name: transaction-service
-        startingStep: 2
-        interval: 5m
 ---
 apiVersion: v1
 kind: Service

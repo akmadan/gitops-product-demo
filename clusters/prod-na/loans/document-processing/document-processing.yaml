@@ -60,33 +60,6 @@ spec:
       previewService: document-processing-preview
       autoPromotionEnabled: false
       scaleDownDelaySeconds: 30
-      prePromotionAnalysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: document-processing
-        - templateName: latency-threshold
-          args:
-            - service-name: document-processing
-        - templateName: error-rate
-          args:
-            - service-name: document-processing
-        - templateName: throughput
-          args:
-            - service-name: document-processing
-        interval: 5m
-      postPromotionAnalysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: document-processing
-        - templateName: latency-threshold
-          args:
-            - service-name: document-processing
-        - templateName: error-rate
-          args:
-            - service-name: document-processing
-        interval: 5m
 ---
 apiVersion: v1
 kind: Service

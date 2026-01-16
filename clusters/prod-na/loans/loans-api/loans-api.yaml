@@ -69,22 +69,6 @@ spec:
         - pause:
             duration: 10m
         - setWeight: 100
-      analysis:
-        templates:
-        - templateName: success-rate
-          args:
-          - service-name: loans-api
-        - templateName: latency-threshold
-          args:
-            - service-name: loans-api
-        - templateName: error-rate
-          args:
-            - service-name: loans-api
-        - templateName: throughput
-          args:
-            - service-name: loans-api
-        startingStep: 2
-        interval: 5m
 ---
 apiVersion: v1
 kind: Service

@@ -60,33 +60,6 @@ spec:
       previewService: logging-service-preview
       autoPromotionEnabled: false
       scaleDownDelaySeconds: 30
-      prePromotionAnalysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: logging-service
-        - templateName: latency-threshold
-          args:
-            - service-name: logging-service
-        - templateName: error-rate
-          args:
-            - service-name: logging-service
-        - templateName: throughput
-          args:
-            - service-name: logging-service
-        interval: 5m
-      postPromotionAnalysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: logging-service
-        - templateName: latency-threshold
-          args:
-            - service-name: logging-service
-        - templateName: error-rate
-          args:
-            - service-name: logging-service
-        interval: 5m
 ---
 apiVersion: v1
 kind: Service

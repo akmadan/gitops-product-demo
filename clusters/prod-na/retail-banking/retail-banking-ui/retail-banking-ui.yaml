@@ -60,30 +60,6 @@ spec:
       previewService: retail-banking-ui-preview
       autoPromotionEnabled: false
       scaleDownDelaySeconds: 30
-      prePromotionAnalysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: retail-banking-ui
-        - templateName: latency-threshold
-          args:
-            - service-name: retail-banking-ui
-        - templateName: error-rate
-          args:
-            - service-name: retail-banking-ui
-        interval: 5m
-      postPromotionAnalysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: retail-banking-ui
-        - templateName: latency-threshold
-          args:
-            - service-name: retail-banking-ui
-        - templateName: error-rate
-          args:
-            - service-name: retail-banking-ui
-        interval: 5m
 ---
 apiVersion: v1
 kind: Service

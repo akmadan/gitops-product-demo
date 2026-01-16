@@ -71,22 +71,6 @@ spec:
         - pause:
             duration: 10m
         - setWeight: 100
-      analysis:
-        templates:
-        - templateName: success-rate
-          args:
-            - service-name: retail-banking-api
-        - templateName: latency-threshold
-          args:
-            - service-name: retail-banking-api
-        - templateName: error-rate
-          args:
-            - service-name: retail-banking-api
-        - templateName: throughput
-          args:
-            - service-name: retail-banking-api
-        startingStep: 2
-        interval: 5m
 ---
 apiVersion: v1
 kind: Service
