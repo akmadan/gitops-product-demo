@@ -66,6 +66,10 @@ spec:
         environment: "prod-na"
         app: "{{.app}}"
         strategy: "rollout"
+      annotations:
+        argocd.argoproj.io/sync-options: "CreateNamespace=true"
+        argocd.argoproj.io/compare-options: "IgnoreExtraneous"
+        notifications.argoproj.io/subscribe.on-sync-succeeded.slack: "prod-banking-alerts"
     spec:
       project: banking
 
@@ -97,9 +101,3 @@ spec:
         kind: Rollout
         jsonPointers:
         - /spec/replicas
-
-      # Production-specific annotations
-      annotations:
-        argocd.argoproj.io/sync-options: "CreateNamespace=true"
-        argocd.argoproj.io/compare-options: "IgnoreExtraneous"
-        notifications.argoproj.io/subscribe.on-sync-succeeded.slack: "prod-banking-alerts"
