@@ -2,50 +2,54 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: treasury-service
-  namespace: corporate-banking
+  name: fraud-detection
+  namespace: retail-banking
   labels:
-    app: treasury-service
+    app: fraud-detection
     environment: prod-apac
     strategy: canary
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: treasury-service
+      app: fraud-detection
   template:
     metadata:
       labels:
-        app: treasury-service
+        app: fraud-detection
         environment: prod-apac
     spec:
       containers:
-      - name: treasury-service
-        image: docker.io/akshitmadanharness/treasury-service:latest
+      - name: fraud-detection
+        image: docker.io/akshitmadanharness/fraud-detection:latest
         ports:
-        - containerPort: 8081
+        - containerPort: 8093
         env:
         - name: ENVIRONMENT
           value: "prod-apac"
+        - name: MODEL_PATH
+          value: "/app/models/fraud_model.pkl"
         - name: REDIS_URL
-          value: "redis://treasury-redis:6379"
+          value: "redis://fraud-detection-redis:6379"
+        - name: ALERT_WEBHOOK_URL
+          value: "https://alerts.prod-apac.company.com/webhook"
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "400m"
-          limits:
             memory: "1Gi"
             cpu: "800m"
+          limits:
+            memory: "2Gi"
+            cpu: "1600m"
         livenessProbe:
           httpGet:
             path: /health
-            port: 8081
+            port: 8093
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /ready
-            port: 8081
+            port: 8093
           initialDelaySeconds: 5
           periodSeconds: 5
   minReadySeconds: 30
@@ -69,32 +73,36 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: treasury-service
-  namespace: corporate-banking
+  name: fraud-detection
+  namespace: retail-banking
   labels:
-    app: treasury-service
+    app: fraud-detection
     environment: prod-apac
 spec:
   selector:
-    app: treasury-service
+    app: fraud-detection
   ports:
   - name: http
     port: 80
-    targetPort: 8081
+    targetPort: 8093
   type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: treasury-service-config
-  namespace: corporate-banking
+  name: fraud-detection-config
+  namespace: retail-banking
   labels:
-    app: treasury-service
+    app: fraud-detection
     environment: prod-apac
 data:
   ENVIRONMENT: "prod-apac"
   LOG_LEVEL: "INFO"
-  REDIS_HOST: "treasury-redis"
+  MODEL_PATH: "/app/models/fraud_model.pkl"
+  REDIS_HOST: "fraud-detection-redis"
   REDIS_PORT: "6379"
-  CACHE_TTL: "1800"
-  RATE_LIMIT: "500"
+  MODEL_VERSION: "v3.2"
+  FRAUD_THRESHOLD: "0.75"
+  ALERT_WEBHOOK_URL: "https://alerts.prod-apac.company.com/webhook"
+  MODEL_RETRAIN_INTERVAL: "86400"
+  BATCH_SIZE: "50"

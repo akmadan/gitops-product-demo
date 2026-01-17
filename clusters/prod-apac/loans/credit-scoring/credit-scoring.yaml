@@ -2,50 +2,52 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: treasury-service
-  namespace: corporate-banking
+  name: credit-scoring
+  namespace: loans
   labels:
-    app: treasury-service
+    app: credit-scoring
     environment: prod-apac
     strategy: canary
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: treasury-service
+      app: credit-scoring
   template:
     metadata:
       labels:
-        app: treasury-service
+        app: credit-scoring
         environment: prod-apac
     spec:
       containers:
-      - name: treasury-service
-        image: docker.io/akshitmadanharness/treasury-service:latest
+      - name: credit-scoring
+        image: docker.io/akshitmadanharness/credit-scoring:latest
         ports:
-        - containerPort: 8081
+        - containerPort: 8085
         env:
         - name: ENVIRONMENT
           value: "prod-apac"
+        - name: MODEL_PATH
+          value: "/app/models/credit_model.pkl"
         - name: REDIS_URL
-          value: "redis://treasury-redis:6379"
+          value: "redis://credit-scoring-redis:6379"
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "400m"
-          limits:
             memory: "1Gi"
             cpu: "800m"
+          limits:
+            memory: "2Gi"
+            cpu: "1600m"
         livenessProbe:
           httpGet:
             path: /health
-            port: 8081
+            port: 8085
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /ready
-            port: 8081
+            port: 8085
           initialDelaySeconds: 5
           periodSeconds: 5
   minReadySeconds: 30
@@ -69,32 +71,34 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: treasury-service
-  namespace: corporate-banking
+  name: credit-scoring
+  namespace: loans
   labels:
-    app: treasury-service
+    app: credit-scoring
     environment: prod-apac
 spec:
   selector:
-    app: treasury-service
+    app: credit-scoring
   ports:
   - name: http
     port: 80
-    targetPort: 8081
+    targetPort: 8085
   type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: treasury-service-config
-  namespace: corporate-banking
+  name: credit-scoring-config
+  namespace: loans
   labels:
-    app: treasury-service
+    app: credit-scoring
     environment: prod-apac
 data:
   ENVIRONMENT: "prod-apac"
   LOG_LEVEL: "INFO"
-  REDIS_HOST: "treasury-redis"
+  MODEL_PATH: "/app/models/credit_model.pkl"
+  REDIS_HOST: "credit-scoring-redis"
   REDIS_PORT: "6379"
-  CACHE_TTL: "1800"
-  RATE_LIMIT: "500"
+  MODEL_VERSION: "v2.1"
+  SCORING_THRESHOLD: "650"
+  BATCH_SIZE: "100"

@@ -2,33 +2,37 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: corp-banking-api
-  namespace: corporate-banking
+  name: document-processing
+  namespace: loans
   labels:
-    app: corp-banking-api
+    app: document-processing
     environment: prod-apac
     strategy: blueGreen
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: corp-banking-api
+      app: document-processing
   template:
     metadata:
       labels:
-        app: corp-banking-api
+        app: document-processing
         environment: prod-apac
     spec:
       containers:
-      - name: corp-banking-api
-        image: docker.io/akshitmadanharness/corp-banking-api:latest
+      - name: document-processing
+        image: docker.io/akshitmadanharness/document-processing:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 8084
         env:
         - name: ENVIRONMENT
           value: "prod-apac"
-        - name: DATABASE_URL
-          value: "postgresql://corporate-db:5432/corporate_banking"
+        - name: MONGODB_URL
+          value: "mongodb://document-db:27017/documents"
+        - name: MINIO_ENDPOINT
+          value: "minio.document-processing.svc.cluster.local:9000"
+        - name: MINIO_BUCKET
+          value: "loan-documents"
         resources:
           requests:
             memory: "512Mi"
@@ -39,72 +43,72 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 8080
+            port: 8084
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /ready
-            port: 8080
+            port: 8084
           initialDelaySeconds: 5
           periodSeconds: 5
   minReadySeconds: 30
   revisionHistoryLimit: 3
   strategy:
     blueGreen:
-      activeService: corp-banking-api-active
-      previewService: corp-banking-api-preview
+      activeService: document-processing-active
+      previewService: document-processing-preview
       autoPromotionEnabled: false
       scaleDownDelaySeconds: 30
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: corp-banking-api-active
-  namespace: corporate-banking
+  name: document-processing-active
+  namespace: loans
   labels:
-    app: corp-banking-api
+    app: document-processing
     environment: prod-apac
 spec:
   selector:
-    app: corp-banking-api
+    app: document-processing
   ports:
   - name: http
     port: 80
-    targetPort: 8080
+    targetPort: 8084
   type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: corp-banking-api-preview
-  namespace: corporate-banking
+  name: document-processing-preview
+  namespace: loans
   labels:
-    app: corp-banking-api
+    app: document-processing
     environment: prod-apac
 spec:
   selector:
-    app: corp-banking-api
+    app: document-processing
   ports:
   - name: http
     port: 80
-    targetPort: 8080
+    targetPort: 8084
   type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: corp-banking-api-config
-  namespace: corporate-banking
+  name: document-processing-config
+  namespace: loans
   labels:
-    app: corp-banking-api
+    app: document-processing
     environment: prod-apac
 data:
   ENVIRONMENT: "prod-apac"
   LOG_LEVEL: "INFO"
-  DATABASE_HOST: "corporate-db"
-  DATABASE_PORT: "5432"
-  DATABASE_NAME: "corporate_banking"
-  API_RATE_LIMIT: "1000"
-  CACHE_TTL: "3600"
+  MONGODB_URL: "mongodb://document-db:27017/documents"
+  MINIO_ENDPOINT: "minio.document-processing.svc.cluster.local:9000"
+  MINIO_BUCKET: "loan-documents"
+  OCR_CONFIDENCE_THRESHOLD: "0.85"
+  DOCUMENT_RETENTION_DAYS: "2555"
+  MAX_FILE_SIZE: "50MB"

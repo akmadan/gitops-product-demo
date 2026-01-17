@@ -2,33 +2,41 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: treasury-service
-  namespace: corporate-banking
+  name: transaction-service
+  namespace: retail-banking
   labels:
-    app: treasury-service
+    app: transaction-service
     environment: prod-apac
     strategy: canary
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: treasury-service
+      app: transaction-service
   template:
     metadata:
       labels:
-        app: treasury-service
+        app: transaction-service
         environment: prod-apac
     spec:
       containers:
-      - name: treasury-service
-        image: docker.io/akshitmadanharness/treasury-service:latest
+      - name: transaction-service
+        image: docker.io/akshitmadanharness/transaction-service:latest
         ports:
-        - containerPort: 8081
+        - containerPort: 8092
         env:
         - name: ENVIRONMENT
           value: "prod-apac"
-        - name: REDIS_URL
-          value: "redis://treasury-redis:6379"
+        - name: ACCOUNT_SERVICE_URL
+          value: "http://account-service:8091"
+        - name: FRAUD_DETECTION_URL
+          value: "http://fraud-detection:8093"
+        - name: DATABASE_URL
+          value: "postgresql://retail-db:5432/retail_banking"
+        - name: KAFKA_BROKERS
+          value: "kafka:9092"
+        - name: KAFKA_TOPIC
+          value: "transactions"
         resources:
           requests:
             memory: "512Mi"
@@ -39,13 +47,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 8081
+            port: 8092
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /ready
-            port: 8081
+            port: 8092
           initialDelaySeconds: 5
           periodSeconds: 5
   minReadySeconds: 30
@@ -69,32 +77,37 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: treasury-service
-  namespace: corporate-banking
+  name: transaction-service
+  namespace: retail-banking
   labels:
-    app: treasury-service
+    app: transaction-service
     environment: prod-apac
 spec:
   selector:
-    app: treasury-service
+    app: transaction-service
   ports:
   - name: http
     port: 80
-    targetPort: 8081
+    targetPort: 8092
   type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: treasury-service-config
-  namespace: corporate-banking
+  name: transaction-service-config
+  namespace: retail-banking
   labels:
-    app: treasury-service
+    app: transaction-service
     environment: prod-apac
 data:
   ENVIRONMENT: "prod-apac"
   LOG_LEVEL: "INFO"
-  REDIS_HOST: "treasury-redis"
-  REDIS_PORT: "6379"
-  CACHE_TTL: "1800"
-  RATE_LIMIT: "500"
+  ACCOUNT_SERVICE_URL: "http://account-service:8091"
+  FRAUD_DETECTION_URL: "http://fraud-detection:8093"
+  DATABASE_HOST: "retail-db"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "retail_banking"
+  KAFKA_BROKERS: "kafka:9092"
+  KAFKA_TOPIC: "transactions"
+  TRANSACTION_BATCH_SIZE: "100"
+  FRAUD_CHECK_ENABLED: "true"
