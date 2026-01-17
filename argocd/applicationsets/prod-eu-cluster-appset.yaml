@@ -1,0 +1,103 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: prod-eu-microservices
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+
+  generators:
+  - list:
+      elements:
+        # -------- corporate-banking --------
+        - app: compliance-service
+          path: clusters/prod-eu/corporate-banking/compliance-service
+          namespace: corporate-banking
+        - app: corp-banking-api
+          path: clusters/prod-eu/corporate-banking/corp-banking-api
+          namespace: corporate-banking
+        - app: corp-banking-ui
+          path: clusters/prod-eu/corporate-banking/corp-banking-ui
+          namespace: corporate-banking
+        - app: treasury-service
+          path: clusters/prod-eu/corporate-banking/treasury-service
+          namespace: corporate-banking
+
+        # -------- retail-banking --------
+        - app: account-service
+          path: clusters/prod-eu/retail-banking/account-service
+          namespace: retail-banking
+        - app: fraud-detection
+          path: clusters/prod-eu/retail-banking/fraud-detection
+          namespace: retail-banking
+        - app: logging-service
+          path: clusters/prod-eu/retail-banking/logging-service
+          namespace: retail-banking
+        - app: retail-banking-api
+          path: clusters/prod-eu/retail-banking/retail-banking-api
+          namespace: retail-banking
+        - app: retail-banking-ui
+          path: clusters/prod-eu/retail-banking/retail-banking-ui
+          namespace: retail-banking
+        - app: transaction-service
+          path: clusters/prod-eu/retail-banking/transaction-service
+          namespace: retail-banking
+
+        # -------- loans --------
+        - app: credit-scoring
+          path: clusters/prod-eu/loans/credit-scoring
+          namespace: loans
+        - app: document-processing
+          path: clusters/prod-eu/loans/document-processing
+          namespace: loans
+        - app: loans-api
+          path: clusters/prod-eu/loans/loans-api
+          namespace: loans
+        - app: loans-ui
+          path: clusters/prod-eu/loans/loans-ui
+          namespace: loans
+
+  template:
+    metadata:
+      name: "prod-eu-{{.app}}"
+      labels:
+        environment: "prod-eu"
+        app: "{{.app}}"
+        strategy: "rollout"
+      annotations:
+        argocd.argoproj.io/sync-options: "CreateNamespace=true"
+        argocd.argoproj.io/compare-options: "IgnoreExtraneous"
+        notifications.argoproj.io/subscribe.on-sync-succeeded.slack: "prod-banking-alerts"
+    spec:
+      project: banking
+
+      source:
+        repoURL: https://github.com/akmadan/gitops-product-demo
+        targetRevision: main
+        path: "{{.path}}"
+
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "{{.namespace}}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+
+      # Progressive delivery configuration for production
+      ignoreDifferences:
+      - group: argoproj.io
+        kind: Rollout
+        jsonPointers:
+        - /spec/replicas

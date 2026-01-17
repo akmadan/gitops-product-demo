@@ -1,0 +1,107 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: loans-api
+  namespace: loans
+  labels:
+    app: loans-api
+    environment: prod-eu
+    strategy: canary
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: loans-api
+  template:
+    metadata:
+      labels:
+        app: loans-api
+        environment: prod-eu
+    spec:
+      containers:
+      - name: loans-api
+        image: docker.io/akshitmadanharness/loans-api:latest
+        ports:
+        - containerPort: 8083
+        env:
+        - name: ENVIRONMENT
+          value: "prod-eu"
+        - name: CREDIT_SCORING_URL
+          value: "http://credit-scoring:8085"
+        - name: DOCUMENT_PROCESSING_URL
+          value: "http://document-processing:8084"
+        - name: DATABASE_URL
+          value: "postgresql://loans-db:5432/loans"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8083
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    canary:
+      maxSurge: '25%'
+      maxUnavailable: 0
+      steps:
+        - setWeight: 10
+        - pause:
+            duration: 10m
+        - setWeight: 25
+        - pause:
+            duration: 10m
+        - setWeight: 50
+        - pause:
+            duration: 10m
+        - setWeight: 100
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loans-api
+  namespace: loans
+  labels:
+    app: loans-api
+    environment: prod-eu
+spec:
+  selector:
+    app: loans-api
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8083
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loans-api-config
+  namespace: loans
+  labels:
+    app: loans-api
+    environment: prod-eu
+data:
+  ENVIRONMENT: "prod-eu"
+  LOG_LEVEL: "INFO"
+  CREDIT_SCORING_URL: "http://credit-scoring:8085"
+  DOCUMENT_PROCESSING_URL: "http://document-processing:8084"
+  DATABASE_HOST: "loans-db"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "loans"
+  API_RATE_LIMIT: "2000"
+  LOAN_APPROVAL_THRESHOLD: "50000"

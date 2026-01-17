@@ -1,0 +1,114 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: document-processing
+  namespace: loans
+  labels:
+    app: document-processing
+    environment: prod-eu
+    strategy: blueGreen
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: document-processing
+  template:
+    metadata:
+      labels:
+        app: document-processing
+        environment: prod-eu
+    spec:
+      containers:
+      - name: document-processing
+        image: docker.io/akshitmadanharness/document-processing:latest
+        ports:
+        - containerPort: 8084
+        env:
+        - name: ENVIRONMENT
+          value: "prod-eu"
+        - name: MONGODB_URL
+          value: "mongodb://document-db:27017/documents"
+        - name: MINIO_ENDPOINT
+          value: "minio.document-processing.svc.cluster.local:9000"
+        - name: MINIO_BUCKET
+          value: "loan-documents"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8084
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    blueGreen:
+      activeService: document-processing-active
+      previewService: document-processing-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: document-processing-active
+  namespace: loans
+  labels:
+    app: document-processing
+    environment: prod-eu
+spec:
+  selector:
+    app: document-processing
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8084
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: document-processing-preview
+  namespace: loans
+  labels:
+    app: document-processing
+    environment: prod-eu
+spec:
+  selector:
+    app: document-processing
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8084
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: document-processing-config
+  namespace: loans
+  labels:
+    app: document-processing
+    environment: prod-eu
+data:
+  ENVIRONMENT: "prod-eu"
+  LOG_LEVEL: "INFO"
+  MONGODB_URL: "mongodb://document-db:27017/documents"
+  MINIO_ENDPOINT: "minio.document-processing.svc.cluster.local:9000"
+  MINIO_BUCKET: "loan-documents"
+  OCR_CONFIDENCE_THRESHOLD: "0.85"
+  DOCUMENT_RETENTION_DAYS: "2555"
+  MAX_FILE_SIZE: "50MB"
