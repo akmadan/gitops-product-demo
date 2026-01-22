@@ -1,0 +1,37 @@
+# Minimal kube-prometheus-stack config for GKE Autopilot
+# - Disables components that require host access (node-exporter)
+# - Avoids touching managed kube-system services (kube-* control plane, coredns, kube-proxy)
+
+kubeProxy:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
+
+coreDns:
+  enabled: false
+
+# Disable default rules that relate to the disabled components above
+defaultRules:
+  rules:
+    kubeApiserver: false
+    kubeScheduler: false
+    kubeControllerManager: false
+    kubeProxy: false
+    kubeEtcd: false
+    # These groups are mostly cluster/infra focused; you can re-enable selectively later
+    kubePrometheusNodeAlerting: false
+    kubePrometheusNodeRecording: false
+
+# Disable node exporter (uses hostNetwork, hostPID, hostPath)
+prometheus-node-exporter:
+  enabled: false
+
+nodeExporter:
+  enabled: false

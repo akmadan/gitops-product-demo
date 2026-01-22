@@ -1,0 +1,449 @@
+name: Argo CD Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'argocd/**'
+      - 'clusters/**'
+      - 'apps/**'
+      - '.github/workflows/argo-deployment.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'argocd/**'
+      - 'clusters/**'
+      - 'apps/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - qa
+          - preprod
+          - prod-na
+          - prod-eu
+          - prod-apac
+
+env:
+  REGISTRY: ghcr.io
+  ARGOCD_VERSION: v2.10.3
+  KUBECTL_VERSION: v1.28.0
+
+jobs:
+  validate-manifests:
+    name: Validate Kubernetes Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubeconform
+        uses: instrumenta/kubeval-action@master
+        with:
+          files: argocd/,clusters/
+
+      - name: Validate YAML structure
+        run: |
+          echo "Validating ArgoCD configurations..."
+          find argocd/ -name "*.yaml" -o -name "*.yml" | while read file; do
+            echo "Checking $file"
+            if ! yaml-lint "$file"; then
+              echo "YAML validation failed for $file"
+              exit 1
+            fi
+          done
+
+      - name: Validate ApplicationSets
+        run: |
+          echo "Validating ApplicationSet syntax..."
+          find argocd/applicationsets/ -name "*.yaml" -o -name "*.yml" | while read file; do
+            if grep -q "kind: ApplicationSet" "$file"; then
+              echo "Found ApplicationSet: $file"
+            fi
+          done
+
+  lint-kubernetes:
+    name: Lint Kubernetes Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.12.0'
+
+      - name: Lint Helm charts
+        run: |
+          for chart in $(find . -name "Chart.yaml" -type f | xargs dirname); do
+            echo "Linting Helm chart: $chart"
+            helm lint "$chart" || exit 1
+          done
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  sync-argocd-dev:
+    name: Sync ArgoCD Dev Cluster
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    needs: [validate-manifests, lint-kubernetes, security-scan]
+    environment:
+      name: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_DEV }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER_DEV }} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password ${{ secrets.ARGOCD_PASSWORD }} \
+            --insecure
+
+      - name: Apply ArgoCD Project
+        run: |
+          kubectl apply -f argocd/projects/banking-project.yaml
+
+      - name: Apply Dev ApplicationSets
+        run: |
+          kubectl apply -f argocd/applicationsets/dev-cluster-appset.yaml
+
+      - name: Sync Dev Applications
+        run: |
+          argocd app sync -l "argocd.argoproj.io/instance=dev-*" --prune
+
+      - name: Wait for Dev Applications Healthy
+        run: |
+          argocd app wait -l "argocd.argoproj.io/instance=dev-*" --health
+
+  sync-argocd-qa:
+    name: Sync ArgoCD QA Cluster
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    needs: [validate-manifests, lint-kubernetes, security-scan]
+    environment:
+      name: qa
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_QA }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER_QA }} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password ${{ secrets.ARGOCD_PASSWORD }} \
+            --insecure
+
+      - name: Apply ArgoCD Project
+        run: |
+          kubectl apply -f argocd/projects/banking-project.yaml
+
+      - name: Apply QA ApplicationSets
+        run: |
+          kubectl apply -f argocd/applicationsets/qa-cluster-appset.yaml
+
+      - name: Sync QA Applications
+        run: |
+          argocd app sync -l "argocd.argoproj.io/instance=qa-*" --prune
+
+      - name: Wait for QA Applications Healthy
+        run: |
+          argocd app wait -l "argocd.argoproj.io/instance=qa-*" --health
+
+  sync-argocd-prod:
+    name: Sync ArgoCD Production Clusters
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [validate-manifests, lint-kubernetes, security-scan]
+    environment:
+      name: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.ref,
+              environment: 'production',
+              description: 'Production Cluster Deployment',
+              auto_merge: false,
+              required_contexts: []
+            });
+            return deployment.data.id;
+
+      - name: Configure kubeconfig - Preprod
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_PREPROD }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+
+      - name: Login to ArgoCD - Preprod
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER_PREPROD }} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password ${{ secrets.ARGOCD_PASSWORD }} \
+            --insecure
+
+      - name: Apply ArgoCD Project - Preprod
+        run: |
+          kubectl apply -f argocd/projects/banking-project.yaml
+
+      - name: Apply Preprod ApplicationSets
+        run: |
+          kubectl apply -f argocd/applicationsets/preprod-cluster-appset.yaml
+
+      - name: Sync Preprod Applications
+        run: |
+          argocd app sync -l "argocd.argoproj.io/instance=preprod-*" --prune
+
+      - name: Wait for Preprod Applications Healthy
+        run: |
+          argocd app wait -l "argocd.argoproj.io/instance=preprod-*" --health
+
+      - name: Manual Approval for Prod Deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('Production deployment requires manual approval');
+            console.log('Review the deployment and approve in GitHub Actions UI');
+
+      - name: Configure kubeconfig - Prod NA
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_PROD_NA }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Login to ArgoCD - Prod NA
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER_PROD_NA }} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password ${{ secrets.ARGOCD_PASSWORD }} \
+            --insecure
+
+      - name: Apply Prod NA ApplicationSets
+        run: |
+          kubectl apply -f argocd/applicationsets/prod-na-cluster-appset.yaml
+
+      - name: Sync Prod NA Applications
+        run: |
+          argocd app sync -l "argocd.argoproj.io/instance=prod-na-*" --prune
+
+      - name: Wait for Prod NA Applications Healthy
+        run: |
+          argocd app wait -l "argocd.argoproj.io/instance=prod-na-*" --health
+
+      - name: Configure kubeconfig - Prod EU
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_PROD_EU }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Login to ArgoCD - Prod EU
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER_PROD_EU }} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password ${{ secrets.ARGOCD_PASSWORD }} \
+            --insecure
+
+      - name: Apply Prod EU ApplicationSets
+        run: |
+          kubectl apply -f argocd/applicationsets/prod-eu-cluster-appset.yaml
+
+      - name: Sync Prod EU Applications
+        run: |
+          argocd app sync -l "argocd.argoproj.io/instance=prod-eu-*" --prune
+
+      - name: Wait for Prod EU Applications Healthy
+        run: |
+          argocd app wait -l "argocd.argoproj.io/instance=prod-eu-*" --health
+
+      - name: Configure kubeconfig - Prod APAC
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_PROD_APAC }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Login to ArgoCD - Prod APAC
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER_PROD_APAC }} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password ${{ secrets.ARGOCD_PASSWORD }} \
+            --insecure
+
+      - name: Apply Prod APAC ApplicationSets
+        run: |
+          kubectl apply -f argocd/applicationsets/prod-apac-cluster-appset.yaml
+
+      - name: Sync Prod APAC Applications
+        run: |
+          argocd app sync -l "argocd.argoproj.io/instance=prod-apac-*" --prune
+
+      - name: Wait for Prod APAC Applications Healthy
+        run: |
+          argocd app wait -l "argocd.argoproj.io/instance=prod-apac-*" --health
+
+  manual-sync:
+    name: Manual Environment Sync
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          ENV_NAME=${{ github.event.inputs.environment }}
+          SECRET_NAME="KUBE_CONFIG_${ENV_NAME^^}"
+          echo "${!SECRET_NAME}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+        env:
+          KUBE_CONFIG_DEV: ${{ secrets.KUBE_CONFIG_DEV }}
+          KUBE_CONFIG_QA: ${{ secrets.KUBE_CONFIG_QA }}
+          KUBE_CONFIG_PREPROD: ${{ secrets.KUBE_CONFIG_PREPROD }}
+          KUBE_CONFIG_PROD_NA: ${{ secrets.KUBE_CONFIG_PROD_NA }}
+          KUBE_CONFIG_PROD_EU: ${{ secrets.KUBE_CONFIG_PROD_EU }}
+          KUBE_CONFIG_PROD_APAC: ${{ secrets.KUBE_CONFIG_PROD_APAC }}
+
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+
+      - name: Login to ArgoCD
+        run: |
+          ENV_NAME=${{ github.event.inputs.environment }}
+          SERVER_SECRET="ARGOCD_SERVER_${ENV_NAME^^}"
+          argocd login ${!SERVER_SECRET} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password ${{ secrets.ARGOCD_PASSWORD }} \
+            --insecure
+        env:
+          ARGOCD_SERVER_DEV: ${{ secrets.ARGOCD_SERVER_DEV }}
+          ARGOCD_SERVER_QA: ${{ secrets.ARGOCD_SERVER_QA }}
+          ARGOCD_SERVER_PREPROD: ${{ secrets.ARGOCD_SERVER_PREPROD }}
+          ARGOCD_SERVER_PROD_NA: ${{ secrets.ARGOCD_SERVER_PROD_NA }}
+          ARGOCD_SERVER_PROD_EU: ${{ secrets.ARGOCD_SERVER_PROD_EU }}
+          ARGOCD_SERVER_PROD_APAC: ${{ secrets.ARGOCD_SERVER_PROD_APAC }}
+
+      - name: Apply ArgoCD Project
+        run: |
+          kubectl apply -f argocd/projects/banking-project.yaml
+
+      - name: Apply ApplicationSets
+        run: |
+          ENV_NAME=${{ github.event.inputs.environment }}
+          kubectl apply -f argocd/applicationsets/${ENV_NAME}-cluster-appset.yaml
+
+      - name: Sync Applications
+        run: |
+          ENV_NAME=${{ github.event.inputs.environment }}
+          argocd app sync -l "argocd.argoproj.io/instance=${ENV_NAME}-*" --prune
+
+      - name: Wait for Applications Healthy
+        run: |
+          ENV_NAME=${{ github.event.inputs.environment }}
+          argocd app wait -l "argocd.argoproj.io/instance=${ENV_NAME}-*" --health
+
+      - name: Generate Deployment Report
+        run: |
+          ENV_NAME=${{ github.event.inputs.environment }}
+          echo "## Deployment Report - $ENV_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          argocd app list -l "argocd.argoproj.io/instance=${ENV_NAME}-*" >> $GITHUB_STEP_SUMMARY
+
+  notify-deployment:
+    name: Send Deployment Notification
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [validate-manifests, lint-kubernetes, security-scan]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare Notification
+        run: |
+          STATUS=${{ job.status }}
+          BRANCH=${{ github.ref }}
+          COMMIT=${{ github.sha }}
+          AUTHOR=${{ github.actor }}
+          
+          echo "Deployment Status: $STATUS"
+          echo "Branch: $BRANCH"
+          echo "Commit: $COMMIT"
+          echo "Author: $AUTHOR"
+
+      - name: Slack Notification
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'ArgoCD Deployment Pipeline'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

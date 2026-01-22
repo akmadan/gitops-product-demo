@@ -1,0 +1,82 @@
+## Harness GitOps Agent - Overrides File
+## For default overrides, please refer to https://github.com/harness/gitops-helm/blob/main/values.yaml
+## Argo CD overrides can be found at https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml
+
+
+
+# <---Harness configuration overrides--->
+harness:
+  identity:
+    accountIdentifier: 1bvyLackQK-Hapk25-Ry4w
+    orgIdentifier: default
+    projectIdentifier: akshitprojectqa
+    agentIdentifier: preprodgitopsdemoagent
+
+  secrets:
+    agentSecret: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFdlFJQkFEQU5CZ2txaGtpRzl3MEJBUUVGQUFTQ0JLY3dnZ1NqQWdFQUFvSUJBUUQ0R0RydERUSk4zQnRDCmtZK2cxU1lwRU5SRDRncDFLeEYxLzcrY0tqN2w0d2Y5OEJCZlczVkVTYndGT1FTWU5TdjB1L2lCSHJhL1lPMHQKZExubGdrL2c5L1kxaXAwYU1TUDVhUWpnN0o1RkZkZVpFZVppbGhuY0JFc0VRRCtGcXpoNnl4eWwxSXgxNUJRUAp4ZkxRdG1xVTE4am9idm9FenpBN0ZHd2xqY2loQ0tZTy8yMG9QU0hMLzlDOGtsRmUwcURnTkcwT1UyQXEvOVF0CkdNVC9pYWc3K0ZMaDdTemZWeEM3Q2RJWXBRRkg0elpvVnRCYnNwbUxFdHEvVHQ0ckRmY3VWRWlicTQ1ZFZZSEIKV0NsemFuNkl3akYxZUx6U2tVVlF5Q3pFR21KY0pwMVByZjJFQlVoeHZiQzMvWEtnSDJuRklKclBpN1UwVUJjTwpRTTBVU0ZNSEFnTUJBQUVDZ2dFQUQzd2ZyVzBON3pzbVBtenNiSXJ4UTAzb0djYVJoWWVuSXRqUUlsU21zVjJPCndhUkt1VkR4akU0WDNMR1czbE12UjZxMTA0VlJ2YmMwaG9wTEVnNmtvck9IWEFjblVCdXlGWjZmTGI3SEVDUFIKWFozMjViOWRwTlJseEVHb1ZWVC9CUGNKZGpaQ2dCYzR3MVZGRnc3VHJ5K2F2QnMxSXJpMTEzSXFYOXV1SXBMUwpxTDZSTEVRQzF5bzlXbnFOZFdFMEw3aHJkU05VQXZzVjduNVhPS09maUJHb2hnWk14QWZtV1Nzd2pNU1N0S0NiCk41WGF2dEg0aG00OWk5UXBGN3g1TXhaTytCSkg4emJ2ZFd1Z2l6amVCRzhSdjJrb1pKUVFFNXhHU2tSck5ZNUMKd3Q2Sk5tTFJmUndIbTZQb0cxdVNLQTMyVHR1elFic1RuMlE3eWNDV3JRS0JnUUQ5VkQ3MUZlZyt0bWxKbWFsRQpWZlZqdmdVNW9uUzB1UkRZc1pDbFJVRGhHZENZTTNuTUhWa0Y1SkZrazd1VS84S3BkdTJqUzhyREtJSXBNMlpCCjRNR0RTNXpsV2ozT2dCRXF1UEc2ZFpLRHFsbDRUYVdUanVPTDB4dzRTSFpVS25HcjFyaWQ0UUlCUHBDQ2VxWDkKR3E2UHNpQllndTZmcGdLMXpoaUN5NjFMM1FLQmdRRDZ0ZHNxa2wzMGdNSVYwSFkya0RrcnJXVmJNSjI2dWo1SQpKSjNqeGY5TEpIVjc3ZlFJVms1Z1lzZ05aSXhVdE5Ec0R3bzNJSkliWTl6a0hDN2x0VEFqTGdFanRZR21YSkh1Cjd1eE5sTVZJbkZDZDlzdlI0ZHpQTWx4eXZsK25EcWxnYlFTRGlKbTA2Z3UvUkhtdFZHVWwwd2hmU1hQZGpDZE8KZ2psTlFkcXVNd0tCZ0Z3UUpzVVl6Z3NrYllVQzQrSGl2MGdkUVhiZGxENHRWM0w0ck5GekpvM252TWZqUlNzcApxeldhQ0VDZDg3akZiZS82T1loenZkOUl0R3pXc2gzVTJWNm10d0VlMTRGWlIyUFlUSGp2eTJ3d0YwM0NJaDlLCitXVFNOdG81YzA5SkVZQmFpME5OQjFaK2J6UUw4SkRZQm9KUVFMTUora0JvcTJsNDJhMkc2WmE5QW9HQUdzTlgKQmhCaDN6dnZmQXlvMGVKTGVCSW1nN21JM09vTXcvN0VyQS95MUw2cm0vTW0zY3o0eU9sQ21jdGwvNVRkeUpWQwpiZWdZTUx4VVZEVjkvQjkvYUFIOU5TYW5GRzlGVk5CRWdYT2tLOEFrQ3ZqUmdUSXZOQjhZSjFlVE5tNG1QcGprCnBuWHFrcGw1YjQyTHY2a0dzeWIzK2RRSmZsajd5VEcxbEQyM2Jta0NnWUVBcTRoeXY0QnhJVk1lbUNVZnVZL3UKenYvQzFBNkhZTEV5ZHhqbEFQbnJnVVJGYU1HamlOUkRQbzVPaERBc1FHVDFHaDlIVldjTHBDRXVTR2s3bTR3YwpJeWpWNVRmUC9hU0VjR2xIaWN0dW1nWWlwalhrNnNuQzdNYjg2RmJUYW1kUEdYQXByQWNPeGFrU3ViVGttWThWCm96UUVqOEhzK0dyWnA0akM4TkNpTXVRPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+    # <---CA data overrides--->
+    caData:
+      enabled: false
+      secret: 
+    redisPassword: GWCZRPRhJbVYfg==
+
+  gitopsServerHost: https://qa.harness.io/prod1/gitops
+  networkPolicy:
+    create: false
+  createClusterRoles: true
+
+  configMap:
+    logLevel: DEBUG
+
+    # <---Agent communication protocol details--->
+    http:
+      agentHttpTarget: https://qa.harness.io/gitops
+      tlsEnabled: false
+      certPath: /tmp/ca.bundle
+
+    reconcile:
+      appsetReconcile: true
+
+  # <---Disaster Recovery override values--->
+  disasterRecovery:
+    enabled: false
+    identifier: 
+
+  # <---Openshift override values--->
+  openshift:
+    enabled: false
+  flux:
+    enabled: false
+  argocdHarnessPlugin:
+    enabled: false
+
+argo-cd:
+  enabled: false
+
+
+
+# <---Agent overrides--->
+agent:
+  harnessName: preprod-gitops-demo-agent
+  image:
+    repository: docker.io/harness/gitops-agent
+    tag: v0.107.2
+
+  replicas: 1
+
+  fipsEnabled: false
+
+  autoscaling:
+    enabled: false
+
+  highAvailability: false
+  # <---Agent Proxy Config overrides--->
+  proxy:
+    enabled: false
+    httpProxy: 
+    httpsProxy: 
+
+# <---Agent upgrader overrides--->
+upgrader:
+  enabled: true
+  image: docker.io/harness/upgrader:latest

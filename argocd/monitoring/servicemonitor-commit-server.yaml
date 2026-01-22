@@ -1,0 +1,14 @@
+---
+# Argo CD Commit Server Metrics ServiceMonitor (Optional)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-commit-server-metrics
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-commit-server
+  endpoints:
+    - port: metrics

@@ -1,0 +1,82 @@
+## Harness GitOps Agent - Overrides File
+## For default overrides, please refer to https://github.com/harness/gitops-helm/blob/main/values.yaml
+## Argo CD overrides can be found at https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml
+
+
+
+# <---Harness configuration overrides--->
+harness:
+  identity:
+    accountIdentifier: 1bvyLackQK-Hapk25-Ry4w
+    orgIdentifier: default
+    projectIdentifier: akshitprojectqa
+    agentIdentifier: qagitopsdemoagent
+
+  secrets:
+    agentSecret: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFdmdJQkFEQU5CZ2txaGtpRzl3MEJBUUVGQUFTQ0JLZ3dnZ1NrQWdFQUFvSUJBUURMTnFQOFo5TUl1eEVaCnJFYXlqc2RyeEVubVdhUFpac1FYWXRVQ2ZjQkptT2piNmlIbmZJcTJscEJmL2cvZ2tPTVFsTGlkR0o2Y1NNWHUKSk9CU1ZlRWx4VE5Tb2ZBQnVRYTViOHA2M3NyYU1KVWhPckJVd015NS8vaWJvUnoycm0vdkorMHNObWNXbmJaLwppbXo1ZGZpRWV0UVUwNEs5dzdOS2hSdVFtRXQzNDVhT2JEOSs2L2JRQW5mR1pRd1k0VEhmb2kyTEJYSEJJME5vCmU5M1BkTE1JU1lwNjBnWlpqRXRYTmxkUUYvR0NIRVpHQzdScnhVNWtmME9HQ2EwY2Q5LzltS0luMzhtZ1pPdVkKbUpBOE1SbDJxSzVBOVJqVVVnWWExRUpVcFB4RHFHcTFCWG9pZ2dhZTJQbENkZ1BZRzBCZVRtdTUrVHo0Qk1uZgpIenBKNit2dEFnTUJBQUVDZ2dFQUhlOE56MW1rM0xHZmxucEp6TFlhK28wbXZKdUNOdjA4RDl6VFYwTmFUbzBMCmFnK09VSGpJUHhhbExEcXlzSWZ2SnF0ZG1XaDl2clE2a2JhVlk1TjZiNU9obUgrNXFLdE9hZ1RsWE4yU0lIdE4KRUdEQ2hpMkRTcmZCc1gwVlZPSURvNFVzV3RtbHJFOXRpVktFOUdjMEJTSEp1VXFoeE4yOXZKR29hbytBZUdlRwp4NEFEWGR5Q3JndUlSRGZ5OTFvZkFtZ1dwM0VtQW1QNHR1UDRyR0tGc3kwbHFBN1RuODdJNm5ha2ZsVE5FeGkyCnB3UE9MM2dKZEdVQkFXUkRyVlJIU3M3MWlZYXFQdGxKdExTcXVNc2hseCtLS2lhY2ErVmF5Y0pQVE53bE9ORkkKZVpRcllsVXMzUEZMeDd3dDl6bUNYaE4rNFNaYU51azlZYStUcVRVZkVRS0JnUURTeUFudThKV3JEV3czdG5FRApQY3ZldWJHZkFkQnk1ZmZxbFNYZGFrQ1NVNTE0Wk9LZ2hYNXI3eWR6Z3RiU0ZqMW5KNkR1alNXeG84Zjd2L05WCmgrODJIaitwVGlYVFJBN3RJaStVeS9pVTZ5c0FlT1pmdlhuaGl5QmhnbzRwUkdzV0N6RVNGaThrZ08rRURqMUcKMmpKVmE2N200dXdNVnozM3Vpbk11aDBKSFFLQmdRRDJ6dm1OTEZ5OUg3aEZmZXpVZXlOZXJ0RSthc1QxSEJLMwpKZFJBd2tBeXFxT2FQcG5yRFZzVXd0a29rOUNXc2orMW11dk9IYnNiYVlGZGFsY21sNDBzMFNXakR0TGdLSEJkCmFUMlVtR0U5VVNDb25LeE9NYmhGQ3dsQ01wVnJmYW80VEpubTB5NmUvd1ZLRmFkaS80MzhCRDNRVlY4VTdEeEIKYkYzZUIvZkZFUUtCZ0V0SFlqVFIrOEloZ3hyS3I4WUdsZjh2dHI0aE9iOHZYc0dMRHdEcTU3RGE2QXlOaTFybApFbWVkL0NzRytZNENuMTl1Q2MzbzN5TjRhUDRDYWZlTUd1VHJITFZzMFptSVh3UldCMFJQTExLUzRzTENheFNhCmFTTWlPeWhZSmttYXc5d1ZseXJzZlYyK0pzeTFBVEdDMENNdDJFTmhuQWcwU0U5blQzSnNyZDRKQW9HQkFJckQKZmQxWXR0K0NhUWx4TG1tY3Zoc3E4T3hGL1d6T0Z0dXdRakVTeGlOMmV6dHF2UUZCNWhhN0ludEUrRDd5QXczcApCM0ZBbUFWbWdWeHpRSUtyTEsyby9aODY0MmN5ZFZLZnJBYlMwY0UyenNUZUthWmhIL2g1cHYvNERyaDcwK3VKCmJmSXdoQUxTNFRkeEMwYUc1bDV1U0E3TklRTlRldUZSdTBqdGMrbnhBb0dCQUxHR2dCZUlCTk0wN2hoV2NBNGkKMWNNQVFQRDFUdzJWYnZrc2M1dEpXbVZXRk43RExDT0RScUVGeXJOazQ3ajU3MWdSM3dZd3NBdC93UWZNRkg3SAo0bTVjQWVKeVcrWWlPRHpyeFk4Z2orVmhrN2FYQVVLRGlaTFZ4dm1FeGU5clVVSlRRL3NFR3d2c3NYVlRLMldRClRhM1MyYzB3R2FTRDd1NUN4MDFUSlhtbQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+    # <---CA data overrides--->
+    caData:
+      enabled: false
+      secret: 
+    redisPassword: QfLYq00916EDtA==
+
+  gitopsServerHost: https://qa.harness.io/prod1/gitops
+  networkPolicy:
+    create: false
+  createClusterRoles: true
+
+  configMap:
+    logLevel: DEBUG
+
+    # <---Agent communication protocol details--->
+    http:
+      agentHttpTarget: https://qa.harness.io/gitops
+      tlsEnabled: false
+      certPath: /tmp/ca.bundle
+
+    reconcile:
+      appsetReconcile: true
+
+  # <---Disaster Recovery override values--->
+  disasterRecovery:
+    enabled: false
+    identifier: 
+
+  # <---Openshift override values--->
+  openshift:
+    enabled: false
+  flux:
+    enabled: false
+  argocdHarnessPlugin:
+    enabled: false
+
+argo-cd:
+  enabled: false
+
+
+
+# <---Agent overrides--->
+agent:
+  harnessName: qa-gitops-demo-agent
+  image:
+    repository: docker.io/harness/gitops-agent
+    tag: v0.107.2
+
+  replicas: 1
+
+  fipsEnabled: false
+
+  autoscaling:
+    enabled: false
+
+  highAvailability: false
+  # <---Agent Proxy Config overrides--->
+  proxy:
+    enabled: false
+    httpProxy: 
+    httpsProxy: 
+
+# <---Agent upgrader overrides--->
+upgrader:
+  enabled: true
+  image: docker.io/harness/upgrader:latest
