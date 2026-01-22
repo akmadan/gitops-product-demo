@@ -74,7 +74,7 @@ spec:
         path: "{{.path}}"
 
       destination:
-        server: "https://kubernetes.default.svc"
+        server: "https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog"
         namespace: "{{.namespace}}"
 
       syncPolicy:

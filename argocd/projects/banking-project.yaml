@@ -8,12 +8,22 @@ spec:
   sourceRepos:
   - https://github.com/akmadan/gitops-product-demo
   destinations:
+  # In-cluster (dev)
   - namespace: corporate-banking
     server: https://kubernetes.default.svc
   - namespace: loans
     server: https://kubernetes.default.svc
   - namespace: retail-banking
     server: https://kubernetes.default.svc
+
+  # QA cluster (external)
+  - namespace: corporate-banking
+    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
+  - namespace: loans
+    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
+  - namespace: retail-banking
+    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
+    
   clusterResourceWhitelist:
   - group: ""
     kind: Namespace

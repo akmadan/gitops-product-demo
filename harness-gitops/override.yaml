@@ -1,0 +1,82 @@
+## Harness GitOps Agent - Overrides File
+## For default overrides, please refer to https://github.com/harness/gitops-helm/blob/main/values.yaml
+## Argo CD overrides can be found at https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/values.yaml
+
+
+
+# <---Harness configuration overrides--->
+harness:
+  identity:
+    accountIdentifier: 1bvyLackQK-Hapk25-Ry4w
+    orgIdentifier: default
+    projectIdentifier: akshitprojectqa
+    agentIdentifier: agentgitopsproductsalesdemo
+
+  secrets:
+    agentSecret: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFdlFJQkFEQU5CZ2txaGtpRzl3MEJBUUVGQUFTQ0JLY3dnZ1NqQWdFQUFvSUJBUUM5MklHUkc1Z0N0NzhpCm1yc2NCWldBMUZYOFFUakp6SE9pbU1nTU5mSVcvV3dnbkdWVHRIRFRxOHJZS3czWGU4YU1QcTg2dVpLM2RncDkKVlBTUHo1ZGFWM1VkaXUzYUhuUHI4TVRiRnNnbUx5aU1KUmR6WmsxZ0t0aGpPTHdha3pLNDdUS1M1ME5NcXQrNQpPU21tbDVyOFpTK2QvSm52S251b2RKRnJLK0tSaStSZEdqM3dMTDEwTlF3QktiS0o4N2FkS0Z4cmpOWkFRYkFGCktya2hwbE1ITFd6ak9VSWZXZDJ4bHlYSTNlcDIwVStzWThmdkFjcTB1V1JtYVduWmtiQVY3aS9XSnRPdS9lNFYKVkVLWFd1MExlYndJSGVIRlhjMzhhN2g4VitjeXhmK011d01LeE5hU3ZMY0tUY3hXSjBGSFh2TWxVbDNYVE4xQQpBTE4wa0tsZEFnTUJBQUVDZ2dFQURqaWh2QlVDYTNHeThtSC9ramNqaVRzSmF6N0NMNXU1TGRKSmFndHJKSDI4CnZuOU9EUzhwenpGc25kK0djZXM3dkZYQWIvaG14OXpOSndaWTFrMEpYQ01oQ3MyQUhubHUydkIyVHFpRGtHNEgKN2plandoUHZ4K2NZYVVFSmE1UTE2eW5FUXNKQU1GdG5MRXVKUUltQUpWZ1BHOFB6RHJvZFRwNkNKakpyWTlaTgp3aGJEUHQvSGNNb1kzU2xoa0FEWXowYTF6S0lsK3U1RXB4ODVSNnZhQUM2QnozQllKY1NmRlRrY0dkUW40dWdSCmJydmlZNmhYVkJVVHJWb1Y2aWwyWlBCc0k0NGlrN0xIVnRuSE0wM3YxMlgxV2ZwQzE1bm00dEFwUm0rMmR3bkEKbDVOTVN2TDV4TzZsdEwrMGpKSmE1NVJpaXpmMXhjbXR6Yk9CNVIwK29RS0JnUURNSzBCSHRwaDVqVktHZjdmYgptekRmTlBUaHJ3ajhXYkhuRlhyWi9YMGN1NWwzZ1VqT1pjS0J1UE9wSWFWQ1piVXp2ZXpPaW1MYUN1WTlEekJsCnEycUpDQXpnODJ5Zy9Ja0lsRFRnR3BEYW9WMjYzOU9yOUtGY045emV4R3VqN0VpTkdQZW9INlMyMnYyWHdKZ3cKYWxWWlNNOGVHbm5RN3orMEE4U3F4OCthZ3dLQmdRRHVDbWIyb0ZKdzdRL24vc0ZPY3BrNHZUQkxiQ1RoSlEzSwpVdWk1WUQ1QzRNSGh2bS84cDBQemxYdUNWeHpCa0JHN1dkRGlWWFhtK2h1ZElmRTdsS3M1eFZyc3lKc0NFa09tCjJFQnhQWWVVSncrRkg3Qk5vcjFialIvekdYem5BaEJPN0ltNVNmL0JsUm1sL25vR29aOHRzdlA2NHM1OG5ZdnUKVHZCRklacm1ud0tCZ0hKYXEwYy9jNGxwYVZhaUJIWEJKNDl0VnRkdE5VZzZhTlY0aDNXL2NDcit2RWRlSjB4TApYTFZSeFUvdTQyUWNHWERncU5sS1UzR3k5eUF0K0xxSlYwTm5PZWRwRUdmZTZsWGV4UHJjaGxPZVhDUkdKNFhCCm4vdEo0ckQzTFI4RVFlS2RvR0VQVUMrRzJ0RDdjNEp5bkZsRTJaVVAyVGo0T0NMNGxWZmVVRjVIQW9HQVpVV1QKckpWa3ZacDl5K3U4ZmcyUFZtNVczNSt3eVFDa3IxRTZwYk5taWJscGd3c3NSY2M3eDZQdkdmTEp6eWZtQTFrZwozMG9Ra1NZVEhYVFZWczNYVXdxOXRrTmFmelVhQngrMXV2ZThlTEZ0anV0K2JHa3lPb0w5OXNUL09LRE9JMlhLCjZrT3JSY2FUVk9YQk1KVU9UYmoyeCtRNmlSWFY5SnNzNlp4MGRHMENnWUVBazZNKzhzVTdCM2tmYzlJbndsbVgKeDR2VHQwVTNPcFBSa3NOTGZaMUY0Z3l0TXp2R2EzRE1OMVBEMVk5cHJEajAxTFpIb2s3MkorVE1raG11QVBCcgpabzNEdG1vbldoSHFFbzhUUENIc1V3eEh1QjF0ekcyanBrUWs5WGE4QXpoTkdaYzBiUHhlYjN5SUJsS0psWkIwClRUTDUrRWZWdFBaZUVZV2VLVHlTM3gwPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+    # <---CA data overrides--->
+    caData:
+      enabled: false
+      secret: 
+    redisPassword: uPkp5ocjINozoA==
+
+  gitopsServerHost: https://qa.harness.io/prod1/gitops
+  networkPolicy:
+    create: false
+  createClusterRoles: true
+
+  configMap:
+    logLevel: DEBUG
+
+    # <---Agent communication protocol details--->
+    http:
+      agentHttpTarget: https://qa.harness.io/gitops
+      tlsEnabled: false
+      certPath: /tmp/ca.bundle
+
+    reconcile:
+      appsetReconcile: true
+
+  # <---Disaster Recovery override values--->
+  disasterRecovery:
+    enabled: false
+    identifier: 
+
+  # <---Openshift override values--->
+  openshift:
+    enabled: false
+  flux:
+    enabled: false
+  argocdHarnessPlugin:
+    enabled: false
+
+argo-cd:
+  enabled: false
+
+
+
+# <---Agent overrides--->
+agent:
+  harnessName: agent-gitops-product-sales-demo
+  image:
+    repository: docker.io/harness/gitops-agent
+    tag: v0.107.1
+
+  replicas: 1
+
+  fipsEnabled: false
+
+  autoscaling:
+    enabled: false
+
+  highAvailability: false
+  # <---Agent Proxy Config overrides--->
+  proxy:
+    enabled: false
+    httpProxy: 
+    httpsProxy: 
+
+# <---Agent upgrader overrides--->
+upgrader:
+  enabled: true
+  image: docker.io/harness/upgrader:latest

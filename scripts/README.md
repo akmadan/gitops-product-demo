@@ -43,6 +43,53 @@ Convenience script to build all images specifically for linux/amd64 platform.
 ./scripts/build-images-linux-amd64.sh docker.io/myusername v1.0.0
 ```
 
+### setup-byoa-network-policy.sh
+Sets up network policies for Harness GitOps BYO (Bring Your Own) Agent in an existing ArgoCD cluster. This script resolves RPC connection timeout issues by configuring proper network policies for ArgoCD components.
+
+**Usage:**
+```bash
+# Basic usage with defaults (namespace: argocd, version: v2.10.0)
+./scripts/setup-byoa-network-policy.sh
+
+# Specify namespace
+./scripts/setup-byoa-network-policy.sh --namespace my-argocd-namespace
+
+# Specify ArgoCD version
+./scripts/setup-byoa-network-policy.sh --argo-version v2.9.0
+
+# With GitHub PAT for private repository access
+./scripts/setup-byoa-network-policy.sh --github-pat YOUR_GITHUB_TOKEN
+
+# Using environment variables
+export byoAgentNamespace=argocd
+export argoVersion=v2.10.0
+export GITHUB_PAT=your_token_here
+./scripts/setup-byoa-network-policy.sh
+```
+
+**What it does:**
+1. Downloads and applies ArgoCD manifests to the specified namespace
+2. Downloads network policy YAML (from GitHub or uses local file)
+3. Processes template variables in network policies
+4. Applies network policies to ArgoCD components
+5. Restarts ArgoCD components (scales down, waits, scales up)
+
+**Network Policies Created:**
+- `argocd-application-controller-network-policy`
+- `argocd-applicationset-controller-network-policy`
+- `argocd-repo-server-network-policy`
+- `argocd-redis-network-policy`
+
+**Prerequisites:**
+- `kubectl` configured and connected to your cluster
+- Existing ArgoCD installation in the target namespace
+- Appropriate permissions to create network policies and scale deployments
+
+**Troubleshooting:**
+- If GitHub download fails, the script will use the local `harness-gitops/networkpolicy.yaml` file
+- Ensure your cluster has NetworkPolicy support enabled (CNI plugin must support it)
+- Verify namespace exists: `kubectl get namespace <namespace>`
+
 ## Images Built
 
 ### Corporate Banking (4 images)
