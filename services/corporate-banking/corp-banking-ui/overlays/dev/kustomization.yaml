@@ -6,9 +6,6 @@ namespace: corporate-banking
 bases:
   - ../../base
 
-commonLabels:
-  environment: dev
-
 replicas:
   - name: corp-banking-ui
     count: 1

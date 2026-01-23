@@ -6,9 +6,6 @@ namespace: retail-banking
 bases:
   - ../../base
 
-commonLabels:
-  environment: dev
-
 replicas:
   - name: retail-banking-ui
     count: 1

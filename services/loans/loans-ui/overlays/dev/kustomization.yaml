@@ -6,9 +6,6 @@ namespace: loans
 bases:
   - ../../base
 
-commonLabels:
-  environment: dev
-
 replicas:
   - name: loans-ui
     count: 1

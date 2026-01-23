@@ -6,9 +6,6 @@ namespace: corporate-banking
 bases:
   - ../../base
 
-commonLabels:
-  environment: preprod
-
 replicas:
   - name: compliance-service
     count: 3

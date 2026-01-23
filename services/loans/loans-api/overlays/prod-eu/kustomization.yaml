@@ -6,9 +6,6 @@ namespace: loans
 bases:
   - ../../base
 
-commonLabels:
-  environment: prod-eu
-
 resources:
   - rollout.yaml
 

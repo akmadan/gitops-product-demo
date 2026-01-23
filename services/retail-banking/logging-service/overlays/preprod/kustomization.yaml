@@ -6,9 +6,6 @@ namespace: retail-banking
 bases:
   - ../../base
 
-commonLabels:
-  environment: preprod
-
 replicas:
   - name: logging-service
     count: 3

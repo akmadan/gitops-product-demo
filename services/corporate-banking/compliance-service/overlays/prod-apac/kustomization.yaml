@@ -6,9 +6,6 @@ namespace: corporate-banking
 bases:
   - ../../base
 
-commonLabels:
-  environment: prod-apac
-
 resources:
   - rollout.yaml
 

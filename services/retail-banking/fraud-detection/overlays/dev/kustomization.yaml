@@ -6,9 +6,6 @@ namespace: retail-banking
 bases:
   - ../../base
 
-commonLabels:
-  environment: dev
-
 replicas:
   - name: fraud-detection
     count: 1

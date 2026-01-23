@@ -6,9 +6,6 @@ namespace: retail-banking
 bases:
   - ../../base
 
-commonLabels:
-  environment: prod-eu
-
 resources:
   - rollout.yaml
 
