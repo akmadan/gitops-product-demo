@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: logging-service
+  labels:
+    app: logging-service
+    strategy: blueGreen
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: logging-service
+  template:
+    metadata:
+      labels:
+        app: logging-service
+    spec:
+      containers:
+      - name: logging-service
+        image: docker.io/akshitmadanharness/logging-service:latest
+        ports:
+        - containerPort: 8094
+        env:
+        - name: ENVIRONMENT
+          value: "prod-apac"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8094
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8094
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    blueGreen:
+      activeService: logging-service-active
+      previewService: logging-service-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30

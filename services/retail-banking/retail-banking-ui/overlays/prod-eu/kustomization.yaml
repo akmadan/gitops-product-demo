@@ -15,57 +15,6 @@ patches:
         path: /data/ENVIRONMENT
         value: "prod-eu"
 
----
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: retail-banking-ui
-  labels:
-    app: retail-banking-ui
-    strategy: blueGreen
-spec:
-  replicas: 5
-  selector:
-    matchLabels:
-      app: retail-banking-ui
-  template:
-    metadata:
-      labels:
-        app: retail-banking-ui
-    spec:
-      containers:
-      - name: retail-banking-ui
-        image: docker.io/akshitmadanharness/retail-banking-ui:latest
-        ports:
-        - containerPort: 80
-        env:
-        - name: ENVIRONMENT
-          value: "prod-eu"
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "400m"
-          limits:
-            memory: "1Gi"
-            cpu: "800m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
-  minReadySeconds: 30
-  revisionHistoryLimit: 3
-  strategy:
-    blueGreen:
-      activeService: retail-banking-ui-active
-      previewService: retail-banking-ui-preview
-      autoPromotionEnabled: false
-      scaleDownDelaySeconds: 30
+resources:
+  - rollout.yaml
 

@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: corp-banking-ui
+  labels:
+    app: corp-banking-ui
+    strategy: blueGreen
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: corp-banking-ui
+  template:
+    metadata:
+      labels:
+        app: corp-banking-ui
+    spec:
+      containers:
+      - name: corp-banking-ui
+        image: docker.io/akshitmadanharness/corp-banking-ui:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: ENVIRONMENT
+          value: "prod-eu"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    blueGreen:
+      activeService: corp-banking-ui-active
+      previewService: corp-banking-ui-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30

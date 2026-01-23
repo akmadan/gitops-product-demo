@@ -6,6 +6,9 @@ namespace: retail-banking
 bases:
   - ../../base
 
+resources:
+  - rollout.yaml
+
 patches:
   - target:
       kind: ConfigMap
@@ -14,9 +17,6 @@ patches:
       - op: add
         path: /data/ENVIRONMENT
         value: "prod-apac"
-
----
-apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: transaction-service

@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: treasury-service
+  labels:
+    app: treasury-service
+    strategy: canary
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: treasury-service
+  template:
+    metadata:
+      labels:
+        app: treasury-service
+    spec:
+      containers:
+      - name: treasury-service
+        image: docker.io/akshitmadanharness/treasury-service:latest
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ENVIRONMENT
+          value: "prod-eu"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+  strategy:
+    canary:
+      steps:
+      - weight: 20
+        pause: {duration: 5m}
+      - weight: 50
+        pause: {duration: 5m}
+      - weight: 80
+        pause: {duration: 5m}

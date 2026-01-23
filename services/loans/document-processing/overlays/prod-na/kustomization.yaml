@@ -6,6 +6,9 @@ namespace: loans
 bases:
   - ../../base
 
+resources:
+  - rollout.yaml
+
 patches:
   - target:
       kind: ConfigMap
@@ -14,9 +17,6 @@ patches:
       - op: add
         path: /data/ENVIRONMENT
         value: "prod-na"
-
----
-apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: document-processing

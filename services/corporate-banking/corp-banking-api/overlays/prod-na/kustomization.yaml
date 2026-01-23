@@ -15,57 +15,6 @@ patches:
         path: /data/ENVIRONMENT
         value: "prod-na"
 
----
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: corp-banking-api
-  labels:
-    app: corp-banking-api
-    strategy: blueGreen
-spec:
-  replicas: 5
-  selector:
-    matchLabels:
-      app: corp-banking-api
-  template:
-    metadata:
-      labels:
-        app: corp-banking-api
-    spec:
-      containers:
-      - name: corp-banking-api
-        image: docker.io/akshitmadanharness/corp-banking-api:latest
-        ports:
-        - containerPort: 8080
-        env:
-        - name: ENVIRONMENT
-          value: "prod-na"
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "400m"
-          limits:
-            memory: "1Gi"
-            cpu: "800m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-  minReadySeconds: 30
-  revisionHistoryLimit: 3
-  strategy:
-    blueGreen:
-      activeService: corp-banking-api-active
-      previewService: corp-banking-api-preview
-      autoPromotionEnabled: false
-      scaleDownDelaySeconds: 30
+resources:
+  - rollout.yaml
 
