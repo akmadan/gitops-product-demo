@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: corp-banking-api-config
+  labels:
+    app: corp-banking-api
+data:
+  LOG_LEVEL: "INFO"

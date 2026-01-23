@@ -1,0 +1,89 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: retail-banking
+
+bases:
+  - ../../base
+
+commonLabels:
+  environment: prod-apac
+
+resources:
+  - rollout.yaml
+
+patches:
+  - target:
+      kind: Deployment
+      name: retail-banking-api
+    patch: |-
+      - op: remove
+        path: /
+  - target:
+      kind: ConfigMap
+      name: retail-banking-api-config
+    patch: |-
+      - op: add
+        path: /data/ENVIRONMENT
+        value: "prod-apac"
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: retail-banking-api
+  labels:
+    app: retail-banking-api
+    strategy: canary
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: retail-banking-api
+  template:
+    metadata:
+      labels:
+        app: retail-banking-api
+    spec:
+      containers:
+      - name: retail-banking-api
+        image: docker.io/akshitmadanharness/retail-banking-api:latest
+        ports:
+        - containerPort: 8090
+        env:
+        - name: ENVIRONMENT
+          value: "prod-apac"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    canary:
+      maxSurge: '25%'
+      maxUnavailable: 0
+      steps:
+        - setWeight: 10
+        - pause: { duration: 10m }
+        - setWeight: 25
+        - pause: { duration: 10m }
+        - setWeight: 50
+        - pause: { duration: 10m }
+        - setWeight: 100
+

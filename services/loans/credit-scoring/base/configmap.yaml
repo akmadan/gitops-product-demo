@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: credit-scoring-config
+  labels:
+    app: credit-scoring
+data:
+  LOG_LEVEL: "INFO"

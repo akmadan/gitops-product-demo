@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: loans
+
+bases:
+  - ../../base
+
+commonLabels:
+  environment: qa
+
+replicas:
+  - name: loans-ui
+    count: 2
+
+patches:
+  - target:
+      kind: Deployment
+      name: loans-ui
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: ENVIRONMENT
+            value: "qa"
+  - target:
+      kind: ConfigMap
+      name: loans-ui-config
+    patch: |-
+      - op: add
+        path: /data/ENVIRONMENT
+        value: "qa"

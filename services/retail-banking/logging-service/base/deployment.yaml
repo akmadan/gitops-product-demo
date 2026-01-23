@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logging-service
+  labels:
+    app: logging-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logging-service
+  template:
+    metadata:
+      labels:
+        app: logging-service
+    spec:
+      containers:
+      - name: logging-service
+        image: docker.io/akshitmadanharness/logging-service:latest
+        ports:
+        - containerPort: 8094
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8094
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8094
+          initialDelaySeconds: 5
+          periodSeconds: 5

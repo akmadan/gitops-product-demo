@@ -12,66 +12,66 @@ spec:
   - list:
       elements:
         # -------- corporate-banking --------
-        - app: compliance-service
-          path: clusters/qa/corporate-banking/compliance-service
+        - domain: corporate-banking
+          service: compliance-service
           namespace: corporate-banking
-        - app: corp-banking-api
-          path: clusters/qa/corporate-banking/corp-banking-api
+        - domain: corporate-banking
+          service: corp-banking-api
           namespace: corporate-banking
-        - app: corp-banking-ui
-          path: clusters/qa/corporate-banking/corp-banking-ui
+        - domain: corporate-banking
+          service: corp-banking-ui
           namespace: corporate-banking
-        - app: treasury-service
-          path: clusters/qa/corporate-banking/treasury-service
+        - domain: corporate-banking
+          service: treasury-service
           namespace: corporate-banking
 
         # -------- retail-banking --------
-        - app: account-service
-          path: clusters/qa/retail-banking/account-service
+        - domain: retail-banking
+          service: account-service
           namespace: retail-banking
-        - app: fraud-detection
-          path: clusters/qa/retail-banking/fraud-detection
+        - domain: retail-banking
+          service: fraud-detection
           namespace: retail-banking
-        - app: logging-service
-          path: clusters/qa/retail-banking/logging-service
+        - domain: retail-banking
+          service: logging-service
           namespace: retail-banking
-        - app: retail-banking-api
-          path: clusters/qa/retail-banking/retail-banking-api
+        - domain: retail-banking
+          service: retail-banking-api
           namespace: retail-banking
-        - app: retail-banking-ui
-          path: clusters/qa/retail-banking/retail-banking-ui
+        - domain: retail-banking
+          service: retail-banking-ui
           namespace: retail-banking
-        - app: transaction-service
-          path: clusters/qa/retail-banking/transaction-service
+        - domain: retail-banking
+          service: transaction-service
           namespace: retail-banking
 
         # -------- loans --------
-        - app: credit-scoring
-          path: clusters/qa/loans/credit-scoring
+        - domain: loans
+          service: credit-scoring
           namespace: loans
-        - app: document-processing
-          path: clusters/qa/loans/document-processing
+        - domain: loans
+          service: document-processing
           namespace: loans
-        - app: loans-api
-          path: clusters/qa/loans/loans-api
+        - domain: loans
+          service: loans-api
           namespace: loans
-        - app: loans-ui
-          path: clusters/qa/loans/loans-ui
+        - domain: loans
+          service: loans-ui
           namespace: loans
 
   template:
     metadata:
-      name: "qa-{{.app}}"
+      name: "qa-{{.service}}"
       labels:
         environment: "qa"
-        app: "{{.app}}"
+        app: "{{.service}}"
     spec:
       project: banking
 
       source:
         repoURL: https://github.com/akmadan/gitops-product-demo
         targetRevision: main
-        path: "{{.path}}"
+        path: "services/{{.domain}}/{{.service}}/overlays/qa"
 
       destination:
         server: "https://kubernetes.default.svc"

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loans-api
+  labels:
+    app: loans-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loans-api
+  template:
+    metadata:
+      labels:
+        app: loans-api
+    spec:
+      containers:
+      - name: loans-api
+        image: docker.io/akshitmadanharness/loans-api:latest
+        ports:
+        - containerPort: 8083
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8083
+          initialDelaySeconds: 5
+          periodSeconds: 5

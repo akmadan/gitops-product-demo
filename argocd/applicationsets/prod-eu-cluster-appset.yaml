@@ -12,59 +12,59 @@ spec:
   - list:
       elements:
         # -------- corporate-banking --------
-        - app: compliance-service
-          path: clusters/prod-eu/corporate-banking/compliance-service
+        - domain: corporate-banking
+          service: compliance-service
           namespace: corporate-banking
-        - app: corp-banking-api
-          path: clusters/prod-eu/corporate-banking/corp-banking-api
+        - domain: corporate-banking
+          service: corp-banking-api
           namespace: corporate-banking
-        - app: corp-banking-ui
-          path: clusters/prod-eu/corporate-banking/corp-banking-ui
+        - domain: corporate-banking
+          service: corp-banking-ui
           namespace: corporate-banking
-        - app: treasury-service
-          path: clusters/prod-eu/corporate-banking/treasury-service
+        - domain: corporate-banking
+          service: treasury-service
           namespace: corporate-banking
 
         # -------- retail-banking --------
-        - app: account-service
-          path: clusters/prod-eu/retail-banking/account-service
+        - domain: retail-banking
+          service: account-service
           namespace: retail-banking
-        - app: fraud-detection
-          path: clusters/prod-eu/retail-banking/fraud-detection
+        - domain: retail-banking
+          service: fraud-detection
           namespace: retail-banking
-        - app: logging-service
-          path: clusters/prod-eu/retail-banking/logging-service
+        - domain: retail-banking
+          service: logging-service
           namespace: retail-banking
-        - app: retail-banking-api
-          path: clusters/prod-eu/retail-banking/retail-banking-api
+        - domain: retail-banking
+          service: retail-banking-api
           namespace: retail-banking
-        - app: retail-banking-ui
-          path: clusters/prod-eu/retail-banking/retail-banking-ui
+        - domain: retail-banking
+          service: retail-banking-ui
           namespace: retail-banking
-        - app: transaction-service
-          path: clusters/prod-eu/retail-banking/transaction-service
+        - domain: retail-banking
+          service: transaction-service
           namespace: retail-banking
 
         # -------- loans --------
-        - app: credit-scoring
-          path: clusters/prod-eu/loans/credit-scoring
+        - domain: loans
+          service: credit-scoring
           namespace: loans
-        - app: document-processing
-          path: clusters/prod-eu/loans/document-processing
+        - domain: loans
+          service: document-processing
           namespace: loans
-        - app: loans-api
-          path: clusters/prod-eu/loans/loans-api
+        - domain: loans
+          service: loans-api
           namespace: loans
-        - app: loans-ui
-          path: clusters/prod-eu/loans/loans-ui
+        - domain: loans
+          service: loans-ui
           namespace: loans
 
   template:
     metadata:
-      name: "prod-eu-{{.app}}"
+      name: "prod-eu-{{.service}}"
       labels:
         environment: "prod-eu"
-        app: "{{.app}}"
+        app: "{{.service}}"
         strategy: "rollout"
       annotations:
         argocd.argoproj.io/sync-options: "CreateNamespace=true"
@@ -76,7 +76,7 @@ spec:
       source:
         repoURL: https://github.com/akmadan/gitops-product-demo
         targetRevision: main
-        path: "{{.path}}"
+        path: "services/{{.domain}}/{{.service}}/overlays/prod-eu"
 
       destination:
         server: "https://kubernetes.default.svc"
@@ -95,9 +95,8 @@ spec:
             factor: 2
             maxDuration: 3m
 
-      # Progressive delivery configuration for production
       ignoreDifferences:
       - group: argoproj.io
         kind: Rollout
         jsonPointers:
-        - /spec/replicas
+        - /status

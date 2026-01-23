@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credit-scoring
+  labels:
+    app: credit-scoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: credit-scoring
+  template:
+    metadata:
+      labels:
+        app: credit-scoring
+    spec:
+      containers:
+      - name: credit-scoring
+        image: docker.io/akshitmadanharness/credit-scoring:latest
+        ports:
+        - containerPort: 8085
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8085
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8085
+          initialDelaySeconds: 5
+          periodSeconds: 5

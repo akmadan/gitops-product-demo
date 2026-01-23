@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: corp-banking-ui
+  labels:
+    app: corp-banking-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: corp-banking-ui
+  template:
+    metadata:
+      labels:
+        app: corp-banking-ui
+    spec:
+      containers:
+      - name: corp-banking-ui
+        image: docker.io/akshitmadanharness/corp-banking-ui:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5

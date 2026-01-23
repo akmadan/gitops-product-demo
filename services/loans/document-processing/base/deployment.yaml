@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: document-processing
+  labels:
+    app: document-processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: document-processing
+  template:
+    metadata:
+      labels:
+        app: document-processing
+    spec:
+      containers:
+      - name: document-processing
+        image: docker.io/akshitmadanharness/document-processing:latest
+        ports:
+        - containerPort: 8084
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8084
+          initialDelaySeconds: 5
+          periodSeconds: 5

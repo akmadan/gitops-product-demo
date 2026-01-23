@@ -1,0 +1,89 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: corporate-banking
+
+bases:
+  - ../../base
+
+commonLabels:
+  environment: prod-apac
+
+resources:
+  - rollout.yaml
+
+patches:
+  - target:
+      kind: Deployment
+      name: treasury-service
+    patch: |-
+      - op: remove
+        path: /
+  - target:
+      kind: ConfigMap
+      name: treasury-service-config
+    patch: |-
+      - op: add
+        path: /data/ENVIRONMENT
+        value: "prod-apac"
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: treasury-service
+  labels:
+    app: treasury-service
+    strategy: canary
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: treasury-service
+  template:
+    metadata:
+      labels:
+        app: treasury-service
+    spec:
+      containers:
+      - name: treasury-service
+        image: docker.io/akshitmadanharness/treasury-service:latest
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ENVIRONMENT
+          value: "prod-apac"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    canary:
+      maxSurge: '25%'
+      maxUnavailable: 0
+      steps:
+        - setWeight: 10
+        - pause: { duration: 10m }
+        - setWeight: 25
+        - pause: { duration: 10m }
+        - setWeight: 50
+        - pause: { duration: 10m }
+        - setWeight: 100
+

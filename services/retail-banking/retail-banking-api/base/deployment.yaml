@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: retail-banking-api
+  labels:
+    app: retail-banking-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: retail-banking-api
+  template:
+    metadata:
+      labels:
+        app: retail-banking-api
+    spec:
+      containers:
+      - name: retail-banking-api
+        image: docker.io/akshitmadanharness/retail-banking-api:latest
+        ports:
+        - containerPort: 8090
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8090
+          initialDelaySeconds: 5
+          periodSeconds: 5
