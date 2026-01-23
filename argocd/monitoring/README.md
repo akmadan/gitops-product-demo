@@ -1,76 +1,76 @@
-# Argo CD Prometheus Service Monitors
+# Argo CD Monitoring with Prometheus & Grafana
 
-This directory contains Prometheus ServiceMonitor manifests for monitoring Argo CD components.
+## Quick Setup
 
-## Prerequisites
+### 1. Install Prometheus Operator (if not already installed)
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --create-namespace
+```
 
-- Prometheus Operator installed in your cluster
-- Prometheus instance with label selector configured to discover ServiceMonitors
+### 2. Apply Argo CD ServiceMonitors
+```bash
+kubectl apply -f argocd/monitoring/ -n argocd
+```
 
-## Setup Instructions
+### 3. Verify ServiceMonitors are discovered
+```bash
+kubectl get servicemonitor -n argocd
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-prometheus 9090:9090
+# Visit http://localhost:9090/targets to check if scraping started
+```
 
-1. **Identify your Prometheus label** - Find the label selector used by your Prometheus Operator:
-   ```bash
-   kubectl get prometheus -A -o yaml | grep -A 5 "serviceMonitorSelector"
-   ```
+## Access Grafana
 
-2. **Update the release label** - In each ServiceMonitor file, update the `release` label to match your Prometheus instance:
-   ```yaml
-   labels:
-     release: <your-prometheus-instance-name>
-   ```
+### Get Admin Password
+```bash
+kubectl get secret -n monitoring kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d && echo
+```
 
-3. **Apply in Argo CD namespace** - Apply these manifests in the namespace where Argo CD is installed:
-   ```bash
-   # First, identify your Argo CD namespace (usually 'argocd')
-   kubectl get ns | grep argocd
-   
-   # Apply all ServiceMonitors
-   kubectl apply -f argocd/monitoring/ -n argocd
-   ```
+### Port-Forward to Grafana
+```bash
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
+```
 
-## What's Being Monitored
+Visit: `http://localhost:3000`  
+Login: `admin` / `<password-from-above>`
 
-### Core Services
-- **argocd-metrics**: Argo CD server metrics
-- **argocd-server-metrics**: API server metrics
-- **argocd-repo-server-metrics**: Repository server metrics
-- **argocd-applicationset-controller-metrics**: ApplicationSet controller metrics
-- **argocd-dex-server**: Dex authentication server metrics
-- **argocd-redis-ha-haproxy-metrics**: Redis HA proxy metrics
-- **argocd-notifications-controller**: Notifications controller metrics
-- **argocd-commit-server-metrics**: Commit server metrics (optional component)
+### Import Argo CD Dashboard
+1. Go to **Dashboards** → **Import**
+2. Enter Dashboard ID: `14584`
+3. Select **kube-prometheus-stack** as data source
+4. Click **Import**
 
-## Viewing Metrics
+## Prometheus Queries
 
-Once applied, you can access metrics in Prometheus:
+```promql
+argocd_app_info
+argocd_app_sync_total
+argocd_app_reconcile_duration_seconds
+argocd_app_info{sync_status="OutOfSync"}
+increase(argocd_app_reconcile_total{phase="Failed"}[1h])
+```
 
-1. **Prometheus Dashboard**: Access Prometheus UI and query:
-   ```promql
-   # Examples:
-   argocd_app_info
-   argocd_app_reconcile_total
-   argocd_git_request_total
-   ```
+## Access via External IP (LoadBalancer/NodePort)
 
-2. **Grafana Dashboards**: Import official Argo CD Grafana dashboards:
-   - [Argo CD Dashboards](https://grafana.com/grafana/dashboards/?search=argocd)
+### Expose Grafana as LoadBalancer
+```bash
+kubectl patch svc kube-prometheus-stack-grafana -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
+kubectl get svc -n monitoring kube-prometheus-stack-grafana
+```
+Visit: `http://<EXTERNAL-IP>`
 
-3. **Common Queries**:
-   ```promql
-   # Application sync status
-   argocd_app_info{dest_namespace="dev"}
-   
-   # Application reconciliation duration
-   histogram_quantile(0.95, rate(argocd_app_reconcile_duration_seconds_bucket[5m]))
-   
-   # Failed reconciliations
-   increase(argocd_app_reconcile_total{phase="Failed"}[5m])
-   ```
+### Expose Prometheus as LoadBalancer
+```bash
+kubectl patch svc kube-prometheus-stack-prometheus -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
+kubectl get svc -n monitoring kube-prometheus-stack-prometheus
+```
+Visit: `http://<EXTERNAL-IP>:9090`
 
-## For Dev Cluster Apps
-
-Since you have Argo apps deployed in your cluster:
-- These ServiceMonitors will automatically collect metrics from all Argo CD components
-- Metrics are scoped to the Argo CD namespace
-- You can use label selectors to filter metrics by cluster/environment (via `labels` in ApplicationSet resources)
+### Or use NodePort instead
+```bash
+kubectl patch svc kube-prometheus-stack-grafana -n monitoring -p '{"spec": {"type": "NodePort"}}'
+kubectl get svc -n monitoring kube-prometheus-stack-grafana
+```
+Visit: `http://<NODE-IP>:<NODE-PORT>`
