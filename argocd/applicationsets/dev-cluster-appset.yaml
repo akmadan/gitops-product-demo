@@ -65,8 +65,6 @@ spec:
       labels:
         environment: "dev"
         app: "{{.service}}"
-        harness.io/service: "{{.service}}"
-        harness.io/environment: "dev"
     spec:
       project: banking
 
