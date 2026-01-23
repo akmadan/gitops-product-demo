@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: logging-service
-        image: docker.io/akshitmadanharness/logging-service:latest
+        image: docker.io/akshitmadanharness/retail-logging-service:latest
         ports:
         - containerPort: 8094
         resources:
