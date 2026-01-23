@@ -6,9 +6,6 @@ namespace: retail-banking
 bases:
   - ../../base
 
-resources:
-  - rollout.yaml
-
 patches:
   - target:
       kind: Deployment
