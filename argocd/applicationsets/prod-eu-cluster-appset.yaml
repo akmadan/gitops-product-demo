@@ -15,49 +15,77 @@ spec:
         - domain: corporate-banking
           service: compliance-service
           namespace: corporate-banking
+          serviceRef: cbcomplianceservice
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: corporate-banking
           service: corp-banking-api
           namespace: corporate-banking
+          serviceRef: cbcorpbankapi
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: corporate-banking
           service: corp-banking-ui
           namespace: corporate-banking
+          serviceRef: cbcorpbankui
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: corporate-banking
           service: treasury-service
           namespace: corporate-banking
+          serviceRef: cbtreasuryservice
+          envRef: Prod_EU_GitOps_Product_Demo
 
         # -------- retail-banking --------
         - domain: retail-banking
           service: account-service
           namespace: retail-banking
+          serviceRef: rbaccountservice
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: retail-banking
           service: fraud-detection
           namespace: retail-banking
+          serviceRef: rbfrauddetection
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: retail-banking
           service: logging-service
           namespace: retail-banking
+          serviceRef: rbloggingservice
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: retail-banking
           service: retail-banking-api
           namespace: retail-banking
+          serviceRef: rbapi
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: retail-banking
           service: retail-banking-ui
           namespace: retail-banking
+          serviceRef: rbui
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: retail-banking
           service: transaction-service
           namespace: retail-banking
+          serviceRef: rbtransactionservice
+          envRef: Prod_EU_GitOps_Product_Demo
 
         # -------- loans --------
         - domain: loans
           service: credit-scoring
           namespace: loans
+          serviceRef: loanscreditscoring
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: loans
           service: document-processing
           namespace: loans
+          serviceRef: loansdocumentprocessing
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: loans
           service: loans-api
           namespace: loans
+          serviceRef: loansapi
+          envRef: Prod_EU_GitOps_Product_Demo
         - domain: loans
           service: loans-ui
           namespace: loans
+          serviceRef: loansui
+          envRef: Prod_EU_GitOps_Product_Demo
 
   template:
     metadata:
@@ -66,6 +94,8 @@ spec:
         environment: "prod-eu"
         app: "{{.service}}"
         strategy: "rollout"
+        harness.io/serviceRef: "{{.serviceRef}}"
+        harness.io/envRef: "{{.envRef}}"
       annotations:
         argocd.argoproj.io/sync-options: "CreateNamespace=true"
         argocd.argoproj.io/compare-options: "IgnoreExtraneous"
