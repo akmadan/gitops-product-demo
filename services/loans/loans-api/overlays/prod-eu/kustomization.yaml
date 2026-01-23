@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: loans-api
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: loans-api-config
     patch: |-

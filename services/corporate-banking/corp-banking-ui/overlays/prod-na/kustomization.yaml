@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: corp-banking-ui
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: corp-banking-ui-config
     patch: |-

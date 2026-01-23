@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: retail-banking-api
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: retail-banking-api-config
     patch: |-

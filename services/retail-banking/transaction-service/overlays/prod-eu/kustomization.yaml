@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: transaction-service
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: transaction-service-config
     patch: |-

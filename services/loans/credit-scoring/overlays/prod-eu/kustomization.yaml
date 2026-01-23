@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: credit-scoring
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: credit-scoring-config
     patch: |-

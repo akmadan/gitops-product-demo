@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: document-processing
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: document-processing-config
     patch: |-

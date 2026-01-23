@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: treasury-service
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: treasury-service-config
     patch: |-

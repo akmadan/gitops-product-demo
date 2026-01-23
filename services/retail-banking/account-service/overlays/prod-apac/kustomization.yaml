@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: account-service
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: account-service-config
     patch: |-

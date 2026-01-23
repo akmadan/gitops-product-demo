@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: logging-service
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: logging-service-config
     patch: |-

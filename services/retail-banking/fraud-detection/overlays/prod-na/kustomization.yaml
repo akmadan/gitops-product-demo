@@ -8,12 +8,6 @@ bases:
 
 patches:
   - target:
-      kind: Deployment
-      name: fraud-detection
-    patch: |-
-      - op: remove
-        path: /
-  - target:
       kind: ConfigMap
       name: fraud-detection-config
     patch: |-
