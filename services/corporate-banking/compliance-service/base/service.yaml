@@ -12,3 +12,4 @@ spec:
     port: 80
     targetPort: 8082
   type: ClusterIP
+  replicas: '2'
