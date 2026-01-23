@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: loans-ui
+  labels:
+    app: loans-ui
+    strategy: blueGreen
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: loans-ui
+  template:
+    metadata:
+      labels:
+        app: loans-ui
+    spec:
+      containers:
+      - name: loans-ui
+        image: docker.io/akshitmadanharness/loans-ui:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: ENVIRONMENT
+          value: "prod-apac"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  minReadySeconds: 30
+  revisionHistoryLimit: 3
+  strategy:
+    blueGreen:
+      activeService: loans-ui-active
+      previewService: loans-ui-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
