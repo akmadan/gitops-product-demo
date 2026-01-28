@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: transaction-service-config
+  labels:
+    app: transaction-service
+data:
+  LOG_LEVEL: "INFO"

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: treasury-service
+  labels:
+    app: treasury-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: treasury-service
+  template:
+    metadata:
+      labels:
+        app: treasury-service
+    spec:
+      containers:
+      - name: treasury-service
+        image: docker.io/akshitmadanharness/treasury-service:latest
+        ports:
+        - containerPort: 8081
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "400m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 5

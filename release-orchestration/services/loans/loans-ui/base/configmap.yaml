@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loans-ui-config
+  labels:
+    app: loans-ui
+data:
+  LOG_LEVEL: "INFO"

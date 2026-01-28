@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: retail-banking-dev
+
+bases:
+  - ../../base
+
+replicas:
+  - name: fraud-detection
+    count: 1
+
+patches:
+  - target:
+      kind: Deployment
+      name: fraud-detection
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: ENVIRONMENT
+            value: "dev"
+  - target:
+      kind: ConfigMap
+      name: fraud-detection-config
+    patch: |-
+      - op: add
+        path: /data/ENVIRONMENT
+        value: "dev"

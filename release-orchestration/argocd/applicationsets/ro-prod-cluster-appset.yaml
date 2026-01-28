@@ -14,76 +14,76 @@ spec:
         # -------- corporate-banking --------
         - domain: corporate-banking
           service: compliance-service
-          namespace: corporate-banking
+          namespace: corporate-banking-prod-na
           serviceRef: cbcomplianceservice
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: corporate-banking
           service: corp-banking-api
-          namespace: corporate-banking
+          namespace: corporate-banking-prod-na
           serviceRef: cbcorpbankapi
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: corporate-banking
           service: corp-banking-ui
-          namespace: corporate-banking
+          namespace: corporate-banking-prod-na
           serviceRef: cbcorpbankui
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: corporate-banking
           service: treasury-service
-          namespace: corporate-banking
+          namespace: corporate-banking-prod-na
           serviceRef: cbtreasuryservice
           envRef: RO_Prod_GitOps_Product_Demo
 
         # -------- retail-banking --------
         - domain: retail-banking
           service: account-service
-          namespace: retail-banking
+          namespace: retail-banking-prod-na
           serviceRef: rbaccountservice
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: retail-banking
           service: fraud-detection
-          namespace: retail-banking
+          namespace: retail-banking-prod-na
           serviceRef: rbfrauddetection
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: retail-banking
           service: logging-service
-          namespace: retail-banking
+          namespace: retail-banking-prod-na
           serviceRef: rbloggingservice
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: retail-banking
           service: retail-banking-api
-          namespace: retail-banking
+          namespace: retail-banking-prod-na
           serviceRef: rbapi
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: retail-banking
           service: retail-banking-ui
-          namespace: retail-banking
+          namespace: retail-banking-prod-na
           serviceRef: rbui
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: retail-banking
           service: transaction-service
-          namespace: retail-banking
+          namespace: retail-banking-prod-na
           serviceRef: rbtransactionservice
           envRef: RO_Prod_GitOps_Product_Demo
 
         # -------- loans --------
         - domain: loans
           service: credit-scoring
-          namespace: loans
+          namespace: loans-prod-na
           serviceRef: loanscreditscoring
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: loans
           service: document-processing
-          namespace: loans
+          namespace: loans-prod-na
           serviceRef: loansdocumentprocessing
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: loans
           service: loans-api
-          namespace: loans
+          namespace: loans-prod-na
           serviceRef: loansapi
           envRef: RO_Prod_GitOps_Product_Demo
         - domain: loans
           service: loans-ui
-          namespace: loans
+          namespace: loans-prod-na
           serviceRef: loansui
           envRef: RO_Prod_GitOps_Product_Demo
 
@@ -91,7 +91,7 @@ spec:
     metadata:
       name: "ro-prod-{{.service}}"
       labels:
-        environment: "ro-prod"
+        environment: "prod-na"
         app: "{{.service}}"
         strategy: "rollout"
         harness.io/serviceRef: "{{.serviceRef}}"
@@ -106,7 +106,7 @@ spec:
       source:
         repoURL: https://github.com/akmadan/gitops-product-demo
         targetRevision: main
-        path: "services/{{.domain}}/{{.service}}/overlays/prod-na"
+        path: "release-orchestration/services/{{.domain}}/{{.service}}/overlays/prod-na"
 
       destination:
         server: "https://kubernetes.default.svc"

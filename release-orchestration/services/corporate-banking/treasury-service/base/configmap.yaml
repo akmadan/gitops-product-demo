@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: treasury-service-config
+  labels:
+    app: treasury-service
+data:
+  LOG_LEVEL: "INFO"

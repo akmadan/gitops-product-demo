@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: loans-ui-active
+  labels:
+    app: loans-ui
+spec:
+  selector:
+    app: loans-ui
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loans-ui-preview
+  labels:
+    app: loans-ui
+spec:
+  selector:
+    app: loans-ui
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  type: ClusterIP

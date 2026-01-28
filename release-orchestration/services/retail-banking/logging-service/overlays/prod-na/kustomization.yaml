@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: retail-banking-prod-na
+
+bases:
+  - ../../base
+
+patches:
+  - target:
+      kind: ConfigMap
+      name: logging-service-config
+    patch: |-
+      - op: add
+        path: /data/ENVIRONMENT
+        value: "prod-na"
+
+resources:
+  - rollout.yaml
+
