@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: banking
+  namespace: akshit-argocd
+spec:
+  description: "Banking Demo Project - All domains and environments"
+  sourceRepos:
+  - https://github.com/akmadan/gitops-product-demo
+  destinations:
+  # In-cluster (dev)
+  - namespace: corporate-banking
+    server: https://kubernetes.default.svc
+  - namespace: loans
+    server: https://kubernetes.default.svc
+  - namespace: retail-banking
+    server: https://kubernetes.default.svc
+
+  # QA cluster (external)
+  - namespace: corporate-banking
+    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
+  - namespace: loans
+    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
+  - namespace: retail-banking
+    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
+    
+  clusterResourceWhitelist:
+  - group: ""
+    kind: Namespace
+  roles:
+  - name: banking-admin
+    description: "Admin access to banking applications"
+    policies:
+    - p, proj:banking:banking-admin, applications, *, banking/*, allow
+    groups:
+    - harness:developers
+    - harness:ops
+  - name: banking-readonly
+    description: "Read-only access to banking applications"
+    policies:
+    - p, proj:banking:banking-readonly, applications, get, banking/*, allow
+    - p, proj:banking:banking-readonly, applications, list, banking/*, allow
+    groups:
+    - harness:viewers
+  syncWindows:
+  - kind: allow
+    schedule: '0 0 * * *'
+    duration: 4h
+    applications:
+    - '*'
+    manualSync: true
+  - kind: deny
+    schedule: '0 14 * * 1-5'  # Business hours maintenance window
+    duration: 2h
+    applications:
+    - 'prod-*'
+    manualSync: true

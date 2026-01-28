@@ -12,7 +12,7 @@ metadata:
     app.kubernetes.io/part-of: harness-gitops
     app.kubernetes.io/version: "v0.66.0"
   name: argocd-application-controller-network-policy
-  namespace: argocd
+  namespace: akshit-argocd
 spec:
   ingress:
   - from:
@@ -31,7 +31,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-applicationset-controller-network-policy
-  namespace: argocd
+  namespace: akshit-argocd
   labels:
     helm.sh/chart: gitops-helm-1.0.7
     app.kubernetes.io/name: argocd-applicationset-controller
@@ -68,7 +68,7 @@ metadata:
     app.kubernetes.io/part-of: harness-gitops
     app.kubernetes.io/version: "v0.66.0"
   name: argocd-repo-server-network-policy
-  namespace: argocd
+  namespace: akshit-argocd
 spec:
   ingress:
   - from:
@@ -111,7 +111,7 @@ metadata:
     app.kubernetes.io/part-of: harness-gitops
     app.kubernetes.io/version: "v0.66.0"
   name: argocd-redis-network-policy
-  namespace: argocd
+  namespace: akshit-argocd
 spec:
   ingress:
   - from:

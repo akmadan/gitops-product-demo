@@ -1,0 +1,115 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ro-dev-microservices
+  namespace: akshit-argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+
+  generators:
+  - list:
+      elements:
+        # -------- corporate-banking --------
+        - domain: corporate-banking
+          service: compliance-service
+          namespace: corporate-banking
+          serviceRef: cbcomplianceservice
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: corporate-banking
+          service: corp-banking-api
+          namespace: corporate-banking
+          serviceRef: cbcorpbankapi
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: corporate-banking
+          service: corp-banking-ui
+          namespace: corporate-banking
+          serviceRef: cbcorpbankui
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: corporate-banking
+          service: treasury-service
+          namespace: corporate-banking
+          serviceRef: cbtreasuryservice
+          envRef: RO_Dev_GitOps_Product_Demo
+
+        # -------- retail-banking --------
+        - domain: retail-banking
+          service: account-service
+          namespace: retail-banking
+          serviceRef: rbaccountservice
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: retail-banking
+          service: fraud-detection
+          namespace: retail-banking
+          serviceRef: rbfrauddetection
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: retail-banking
+          service: logging-service
+          namespace: retail-banking
+          serviceRef: rbloggingservice
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: retail-banking
+          service: retail-banking-api
+          namespace: retail-banking
+          serviceRef: rbapi
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: retail-banking
+          service: retail-banking-ui
+          namespace: retail-banking
+          serviceRef: rbui
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: retail-banking
+          service: transaction-service
+          namespace: retail-banking
+          serviceRef: rbtransactionservice
+          envRef: RO_Dev_GitOps_Product_Demo
+
+        # -------- loans --------
+        - domain: loans
+          service: credit-scoring
+          namespace: loans
+          serviceRef: loanscreditscoring
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: loans
+          service: document-processing
+          namespace: loans
+          serviceRef: loansdocumentprocessing
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: loans
+          service: loans-api
+          namespace: loans
+          serviceRef: loansapi
+          envRef: RO_Dev_GitOps_Product_Demo
+        - domain: loans
+          service: loans-ui
+          namespace: loans
+          serviceRef: loansui
+          envRef: RO_Dev_GitOps_Product_Demo
+
+  template:
+    metadata:
+      name: "ro-dev-{{.service}}"
+      labels:
+        environment: "ro-dev"
+        app: "{{.service}}"
+        harness.io/serviceRef: "{{.serviceRef}}"
+        harness.io/envRef: "{{.envRef}}"
+    spec:
+      project: banking
+
+      source:
+        repoURL: https://github.com/akmadan/gitops-product-demo
+        targetRevision: main
+        path: "services/{{.domain}}/{{.service}}/overlays/dev"
+
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "{{.namespace}}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
