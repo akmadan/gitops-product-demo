@@ -2,28 +2,28 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: banking
-  namespace: argocd
+  namespace: akshit-argocd-2
 spec:
   description: "Banking Demo Project - All domains and environments"
   sourceRepos:
   - https://github.com/akmadan/gitops-product-demo
   destinations:
   # In-cluster (dev)
-  - namespace: corporate-banking
+  - namespace: corporate-banking-dev
     server: https://kubernetes.default.svc
-  - namespace: loans
+  - namespace: loans-dev
     server: https://kubernetes.default.svc
-  - namespace: retail-banking
+  - namespace: retail-banking-dev
     server: https://kubernetes.default.svc
 
-  # QA cluster (external)
-  - namespace: corporate-banking
-    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
-  - namespace: loans
-    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
-  - namespace: retail-banking
-    server: https://gke-fbf1214a10d942028d62fc295daf6005223d-205009494922.us-west1.gke.goog
-    
+  # In-cluster (prod-na)
+  - namespace: corporate-banking-prod-na
+    server: https://kubernetes.default.svc
+  - namespace: loans-prod-na
+    server: https://kubernetes.default.svc  
+  - namespace: retail-banking-prod-na
+    server: https://kubernetes.default.svc
+
   clusterResourceWhitelist:
   - group: ""
     kind: Namespace

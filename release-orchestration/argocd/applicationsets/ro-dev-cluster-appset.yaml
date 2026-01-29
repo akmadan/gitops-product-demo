@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: ro-dev-microservices
-  namespace: akshit-argocd
+  namespace: akshit-argocd-2
 spec:
   goTemplate: true
   goTemplateOptions:
