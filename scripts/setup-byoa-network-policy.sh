@@ -6,7 +6,7 @@ set -euo pipefail
 ############################################
 
 # Defaults
-BYO_AGENT_NAMESPACE="${byoAgentNamespace:-akshit-argocd-2}"
+BYO_AGENT_NAMESPACE="${byoAgentNamespace:-argocd}"
 ARGO_VERSION="${argoVersion:-v2.10.0}"
 GITHUB_PAT="${GITHUB_PAT:-}"
 
@@ -60,7 +60,7 @@ curl -fSL -o install.yaml \
   "https://raw.githubusercontent.com/argoproj/argo-cd/${ARGO_VERSION}/manifests/install.yaml"
 
 # Replace namespace safely
-sed "s/namespace: akshit-argocd-2/namespace: ${BYO_AGENT_NAMESPACE}/g" install.yaml > install_ns.yaml
+sed "s/namespace: argocd/namespace: ${BYO_AGENT_NAMESPACE}/g" install.yaml > install_ns.yaml
 
 echo "Applying ArgoCD manifests..."
 kubectl apply -f install_ns.yaml -n "$BYO_AGENT_NAMESPACE" || true

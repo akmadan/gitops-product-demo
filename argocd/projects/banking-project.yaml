@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: banking
-  namespace: akshit-argocd-2
+  namespace: argocd
 spec:
   description: "Banking Demo Project - All domains and environments"
   sourceRepos:
