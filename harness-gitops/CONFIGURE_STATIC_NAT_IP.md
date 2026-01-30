@@ -137,3 +137,5 @@ Region: us-central1
 - ⏳ NAT gateway configuration: **Pending** (choose one of the options above)
 - ⏳ Security team whitelist: **Pending** (after NAT is configured)
 
+
+

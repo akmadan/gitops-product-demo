@@ -9,20 +9,13 @@ spec:
   - https://github.com/akmadan/gitops-product-demo
   destinations:
   # In-cluster (dev)
-  - namespace: corporate-banking-dev
+  - namespace: corporate-banking
     server: https://kubernetes.default.svc
-  - namespace: loans-dev
+  - namespace: loans
     server: https://kubernetes.default.svc
-  - namespace: retail-banking-dev
+  - namespace: retail-banking
     server: https://kubernetes.default.svc
 
-  # In-cluster (prod-na)
-  - namespace: corporate-banking-prod-na
-    server: https://kubernetes.default.svc
-  - namespace: loans-prod-na
-    server: https://kubernetes.default.svc  
-  - namespace: retail-banking-prod-na
-    server: https://kubernetes.default.svc
 
   clusterResourceWhitelist:
   - group: ""
