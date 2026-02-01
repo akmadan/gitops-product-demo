@@ -14,10 +14,14 @@ spec:
     metadata:
       labels:
         app: loans-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8083"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: loans-api
-        image: docker.io/akshitmadanharness/loans-api:latest
+        image: docker.io/akshitmadanharness/loans-api:v2
         ports:
         - containerPort: 8083
         env:

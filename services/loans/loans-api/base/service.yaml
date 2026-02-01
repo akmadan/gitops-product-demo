@@ -11,4 +11,7 @@ spec:
   - name: http
     port: 80
     targetPort: 8083
+  - name: metrics
+    port: 9090
+    targetPort: 8083
   type: ClusterIP

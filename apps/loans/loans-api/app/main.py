@@ -5,6 +5,7 @@ from typing import Annotated
 
 import httpx
 from fastapi import FastAPI, Header, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from .models import (
     CreditScoreResponse,
@@ -19,6 +20,9 @@ def utc_now() -> datetime:
 
 
 app = FastAPI(title="Loans API", version="1.0.0")
+
+# Add Prometheus metrics instrumentation
+Instrumentator().instrument(app).expose(app)
 
 # In-memory store for demo
 applications: dict[str, LoanApplication] = {}
