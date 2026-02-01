@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: loans-api-metrics
+  labels:
+    app: loans-api
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: loans-api
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+
