@@ -6,7 +6,7 @@ metadata:
     app: loans-api
     strategy: canary
 spec:
-  replicas: 4
+  replicas: 5
   selector:
     matchLabels:
       app: loans-api
@@ -15,9 +15,9 @@ spec:
       labels:
         app: loans-api
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8083"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8083'
+        prometheus.io/path: /metrics
     spec:
       containers:
       - name: loans-api
@@ -26,14 +26,14 @@ spec:
         - containerPort: 8083
         env:
         - name: ENVIRONMENT
-          value: "prod-na"
+          value: prod-na
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "400m"
+            memory: 512Mi
+            cpu: 400m
           limits:
-            memory: "1Gi"
-            cpu: "800m"
+            memory: 1Gi
+            cpu: 800m
         livenessProbe:
           httpGet:
             path: /health
@@ -50,13 +50,13 @@ spec:
   revisionHistoryLimit: 3
   strategy:
     canary:
-      maxSurge: '25%'
+      maxSurge: 25%
       maxUnavailable: 0
       steps:
-        - setWeight: 10
-        - pause: {}              # Indefinite pause - controlled by pipeline
-        - setWeight: 25
-        - pause: {}              # Indefinite pause - controlled by pipeline
-        - setWeight: 50
-        - pause: {}              # Indefinite pause - controlled by pipeline
-        - setWeight: 100
+      - setWeight: 10
+      - pause: {}
+      - setWeight: 25
+      - pause: {}
+      - setWeight: 50
+      - pause: {}
+      - setWeight: 100
