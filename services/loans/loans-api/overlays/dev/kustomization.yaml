@@ -5,7 +5,7 @@ bases:
 - ../../base
 replicas:
 - name: loans-api
-  count: 2
+  count: 3
 patches:
 - target:
     kind: Deployment
@@ -23,3 +23,4 @@ patches:
     - op: add
       path: /data/ENVIRONMENT
       value: "dev"
+env: dev
