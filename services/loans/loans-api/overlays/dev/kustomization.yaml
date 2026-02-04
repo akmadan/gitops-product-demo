@@ -12,10 +12,10 @@ patches:
     name: loans-api
   patch: |-
     - op: add
-      path: /spec/template/spec/containers/0/env/-
+      path: /spec/template/spec/containers/0/env
       value:
-        name: ENVIRONMENT
-        value: "dev"
+        - name: ENVIRONMENT
+          value: "dev"
 - target:
     kind: ConfigMap
     name: loans-api-config

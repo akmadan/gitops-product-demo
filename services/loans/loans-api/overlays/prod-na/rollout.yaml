@@ -22,6 +22,7 @@ spec:
       containers:
       - name: loans-api
         image: docker.io/akshitmadanharness/loans-api:v2
+        env: []
         ports:
         - containerPort: 8083
         env:
