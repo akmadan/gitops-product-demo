@@ -3,8 +3,10 @@ kind: Kustomization
 
 namespace: loans
 
-resources:
+bases:
   - ../../base
+
+resources:
   - rollout.yaml
 
 patches:
