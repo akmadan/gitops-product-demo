@@ -6,7 +6,7 @@ metadata:
     app: loans-api
     strategy: canary
 spec:
-  replicas: 5
+  replicas: 1
   selector:
     matchLabels:
       app: loans-api
