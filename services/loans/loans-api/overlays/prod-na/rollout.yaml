@@ -6,7 +6,7 @@ metadata:
     app: loans-api
     strategy: canary
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: loans-api
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: loans-api
-        image: docker.io/akshitmadanharness/loans-api:latest
+        image: docker.io/akshitmadanharness/loans-api:v2
         ports:
         - containerPort: 8083
         env:
