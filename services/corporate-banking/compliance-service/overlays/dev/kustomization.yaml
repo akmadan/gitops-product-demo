@@ -8,7 +8,7 @@ bases:
 
 replicas:
   - name: compliance-service
-    count: 2
+    count: 4
 
 patches:
   - target:
