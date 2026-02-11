@@ -6,6 +6,9 @@ namespace: retail-banking
 bases:
   - ../../base
 
+resources:
+  - secret.yaml
+
 replicas:
   - name: retail-banking-api
     count: 3

@@ -108,10 +108,23 @@ kubectl apply -f networkpolicy.rendered.yaml
 echo ""
 echo "Step 6: Restarting ArgoCD components..."
 
-kubectl rollout restart statefulset/argocd-application-controller -n "$BYO_AGENT_NAMESPACE" || true
-kubectl rollout restart deployment/argocd-applicationset-controller -n "$BYO_AGENT_NAMESPACE" || true
-kubectl rollout restart deployment/argocd-repo-server -n "$BYO_AGENT_NAMESPACE" || true
-kubectl rollout restart deployment/argocd-redis -n "$BYO_AGENT_NAMESPACE" || true
+# Check and restart StatefulSet if it exists
+if kubectl get statefulset argocd-application-controller -n "$BYO_AGENT_NAMESPACE" &>/dev/null; then
+  echo "Restarting argocd-application-controller StatefulSet..."
+  kubectl rollout restart statefulset/argocd-application-controller -n "$BYO_AGENT_NAMESPACE"
+else
+  echo "Warning: argocd-application-controller StatefulSet not found in namespace $BYO_AGENT_NAMESPACE"
+fi
+
+# Check and restart Deployments if they exist
+for deployment in argocd-applicationset-controller argocd-repo-server argocd-redis; do
+  if kubectl get deployment "$deployment" -n "$BYO_AGENT_NAMESPACE" &>/dev/null; then
+    echo "Restarting $deployment Deployment..."
+    kubectl rollout restart deployment/"$deployment" -n "$BYO_AGENT_NAMESPACE"
+  else
+    echo "Warning: $deployment Deployment not found in namespace $BYO_AGENT_NAMESPACE"
+  fi
+done
 
 ############################################
 # Done
