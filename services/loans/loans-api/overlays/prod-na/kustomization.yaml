@@ -13,5 +13,3 @@ patches:
     - op: add
       path: /data/ENVIRONMENT
       value: "prod-na"
-spec:
-  replicas: '3'
